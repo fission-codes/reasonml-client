@@ -52,9 +52,8 @@ let convAuth = (auth: auth) => {
 
 let handle = a =>
   a
-|> Js.Promise.then_(response => Js.Promise.resolve(response##data))
-|> Js.Promise.catch(Js.Promise.resolve);
-
+  |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
+  |> Js.Promise.catch(Js.Promise.resolve);
 
 let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
 let octetConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ());
@@ -62,34 +61,34 @@ let blankConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ());
 
 // Main Show
 
-let content = (cid: cid) =>
+let content = cid =>
   baseURL
   -> url(cid)
   -> Axios.get
   -> handle
 
-let list = (auth: auth) =>
+let list = auth =>
   cidsURL
   -> Axios.getc(blankConfig(auth))
   -> handle
 
-let add = (auth: auth, content: 'a) =>
+let add = (auth, content) =>
   ipfsURL
   -> Axios.postDatac(content, octetConfig(auth))
   -> handle
 
-let addStr = (auth: auth, _str: string) =>
+let addStr = (auth, _str) =>
   ipfsURL
   -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
   -> handle
 
-let pin = (auth: auth, cid: cid) =>
+let pin = (auth, cid) =>
   baseURL
   -> url(cid)
   -> Axios.putDatac([%bs.raw {|{}|}], blankConfig(auth))
   -> handle
 
-let remove = (auth: auth, cid: cid) =>
+let remove = (auth, cid) =>
   baseURL
   -> url(cid)
   -> Axios.deletec(blankConfig(auth))

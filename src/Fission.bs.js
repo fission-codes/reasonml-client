@@ -14,19 +14,19 @@ function url(domain, cid) {
   return domain + ("/ipfs/" + cid);
 }
 
+function convAuth(auth) {
+  return {
+          username: auth[/* username */0],
+          password: auth[/* password */1]
+        };
+}
+
 function handle(a) {
   return a.then((function (response) {
                   return Promise.resolve(response.data);
                 })).catch((function (prim) {
                 return Promise.resolve(prim);
               }));
-}
-
-function convAuth(auth) {
-  return {
-          username: auth[/* username */0],
-          password: auth[/* password */1]
-        };
 }
 
 var octetHeader = Axios.$$Headers[/* fromObj */0]({
@@ -118,11 +118,11 @@ var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 exports.baseURL = baseURL;
 exports.ipfsURL = ipfsURL;
 exports.cidsURL = cidsURL;
-exports.url = url;
 exports.env_username = env_username;
 exports.env_password = env_password;
-exports.handle = handle;
+exports.url = url;
 exports.convAuth = convAuth;
+exports.handle = handle;
 exports.octetHeader = octetHeader;
 exports.octetConfig = octetConfig;
 exports.blankConfig = blankConfig;
