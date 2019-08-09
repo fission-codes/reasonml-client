@@ -104,7 +104,7 @@ type fsn = {
   pin: cid => Js.Promise.t(Js.Promise.error)
 };
 
-let fission = (base: string, auth: auth) => {
+let fission = (base: string, auth: auth): fsn => {
   {
     base,
     content,
