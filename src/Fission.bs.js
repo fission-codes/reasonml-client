@@ -6,10 +6,6 @@ var Axios$1 = require("axios");
 
 var baseURL = "http://localhost:1337";
 
-var env_username = "ca2c70bc13298c5109ee";
-
-var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
-
 var octetHeader = Axios.$$Headers[/* fromObj */0]({
       "content-type": "application/octet-stream"
     });
@@ -43,7 +39,7 @@ function list(auth) {
               }));
 }
 
-function add(content, auth) {
+function add(auth, content) {
   return Axios$1.post("http://localhost:1337/ipfs/", content, {
                   headers: octetHeader,
                   auth: convAuth(auth)
@@ -54,7 +50,7 @@ function add(content, auth) {
               }));
 }
 
-function addStr(_str, auth) {
+function addStr(auth, _str) {
   return Axios$1.post("http://localhost:1337/ipfs/", str, {
                   headers: octetHeader,
                   auth: convAuth(auth)
@@ -65,7 +61,7 @@ function addStr(_str, auth) {
               }));
 }
 
-function pin(cid, auth) {
+function pin(auth, cid) {
   return Axios$1.put(url(baseURL, cid), ({}), {
                   auth: convAuth(auth)
                 }).then((function (response) {
@@ -75,7 +71,7 @@ function pin(cid, auth) {
               }));
 }
 
-function remove(cid, auth) {
+function remove(auth, cid) {
   return Axios$1.delete(url(baseURL, cid), {
                   auth: convAuth(auth)
                 }).then((function (response) {
@@ -85,34 +81,48 @@ function remove(cid, auth) {
               }));
 }
 
-var user = /* record */[
-  /* username */env_username,
-  /* password */env_password
-];
-
-remove("QmQbPPkak9itW3v8WSohtonCBiJcrnAUhrSW1TGPnmWe3f", user).then((function (result) {
-          return Promise.resolve((console.log(result), /* () */0));
-        })).catch((function (error) {
-        return Promise.resolve((console.log(error), /* () */0));
-      }));
-
-function fission(base, auth) {
+function fissionUser(base, username, password) {
+  var user = /* record */[
+    /* username */username,
+    /* password */password
+  ];
   return /* record */[
           /* base */base,
           /* content */content,
           /* url */(function (param) {
               return url(base, param);
             }),
-          /* pin */(function (cid) {
-              return pin(cid, auth);
+          /* add */(function (param) {
+              return add(user, param);
+            }),
+          /* addStr */(function (param) {
+              return addStr(user, param);
+            }),
+          /* pin */(function (param) {
+              return pin(user, param);
+            }),
+          /* remove */(function (param) {
+              return remove(user, param);
             })
         ];
 }
 
-var me = /* record */[
-  /* age */5,
-  /* name */"Big Reason"
-];
+function fission(base) {
+  return /* record */[
+          /* base */base,
+          /* content */content,
+          /* url */(function (param) {
+              return url(base, param);
+            }),
+          /* login */(function (param, param$1) {
+              return fissionUser(base, param, param$1);
+            })
+        ];
+}
+
+var env_username = "ca2c70bc13298c5109ee";
+
+var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 
 exports.baseURL = baseURL;
 exports.env_username = env_username;
@@ -126,7 +136,6 @@ exports.add = add;
 exports.addStr = addStr;
 exports.pin = pin;
 exports.remove = remove;
-exports.user = user;
-exports.me = me;
+exports.fissionUser = fissionUser;
 exports.fission = fission;
 /* octetHeader Not a pure module */

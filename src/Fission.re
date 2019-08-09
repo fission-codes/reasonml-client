@@ -2,7 +2,6 @@ let baseURL = "http://localhost:1337";
 let env_username = "ca2c70bc13298c5109ee";
 let env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 
-
 type cid = string;
 type auth = {
   username: string,
@@ -36,7 +35,7 @@ let list = (auth: auth) =>
     |> catch(error => resolve(error))
   );
 
-let add = (content: 'a, auth: auth) =>
+let add = (auth: auth, content: 'a) =>
   Js.Promise.(
     Axios.postDatac(
       baseURL ++ "/ipfs/",
@@ -47,7 +46,7 @@ let add = (content: 'a, auth: auth) =>
     |> catch(error => resolve(error))
   );
 
-let addStr = (_str: string, auth: auth) =>
+let addStr = (auth: auth, _str: string) =>
   Js.Promise.(
     Axios.postDatac(
       baseURL ++ "/ipfs/",
@@ -58,7 +57,7 @@ let addStr = (_str: string, auth: auth) =>
     |> catch(error => resolve(error))
   );
 
-let pin = (cid: cid, auth: auth) =>
+let pin = (auth: auth, cid: cid) =>
   Js.Promise.(
     Axios.putDatac(
       url(baseURL, cid),
@@ -69,7 +68,7 @@ let pin = (cid: cid, auth: auth) =>
     |> catch(error => resolve(error))
   );
 
-let remove = (cid: cid, auth: auth) =>
+let remove = (auth: auth, cid: cid) =>
   Js.Promise.(
     Axios.deletec(
       url(baseURL, cid),
@@ -79,36 +78,39 @@ let remove = (cid: cid, auth: auth) =>
     |> catch(error => resolve(error))
   );
 
-// testing purposes, delete later
-let user = {username: env_username, password: env_password};
-Js.Promise.(
-  remove("QmQbPPkak9itW3v8WSohtonCBiJcrnAUhrSW1TGPnmWe3f", user)
-  |> then_(result => resolve(Js.Console.log(result)))
-  |> catch(error => resolve(Js.Console.log(error)))
-);
-
-type person = {
-  age: int,
-  name: string
-};
-
-let me = {
-  age: 5,
-  name: "Big Reason"
-};
-
-type fsn = {
+type fsnUser('a) = {
   base: string,
   content: cid => Js.Promise.t(Js.Promise.error),
   url: cid => string,
-  pin: cid => Js.Promise.t(Js.Promise.error)
+  add: Js.t('a) => Js.Promise.t(Js.Promise.error),
+  addStr: cid => Js.Promise.t(Js.Promise.error),
+  pin: cid => Js.Promise.t(Js.Promise.error),
+  remove: cid => Js.Promise.t(Js.Promise.error),
 };
 
-let fission = (base: string, auth: auth): fsn => {
+type fsn('a) = {
+  base: string,
+  content: cid => Js.Promise.t(Js.Promise.error),
+  url: cid => string,
+  login: (string, string) => fsnUser('a),
+};
+
+let fissionUser =
+    (base: string, username: string, password: string): fsnUser('a) => {
+  let user = {username, password};
   {
     base,
     content,
     url: url(base),
-    pin: (cid: cid) => pin(cid, auth)
-  }
-}
+    add: add(user),
+    addStr: addStr(user),
+    pin: pin(user),
+    remove: remove(user),
+  };
+};
+
+let fission = (base: string): fsn('a) => {
+  {base, content, url: url(base), login: fissionUser(base)};
+};
+
+let instance = fission(baseURL);
