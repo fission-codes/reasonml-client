@@ -97,14 +97,6 @@ let me = {
   name: "Big Reason"
 };
 
-/* module Foo = { */
-/*   let */
-/* } */
-
-/* val foo: (int -> int) //= (a: int) => a + 1 */
-
-/* type foo = (f: (int): int, i: int): int; */
-
 type fsn = {
   base: string,
   content: cid => Js.Promise.t(Js.Promise.error),
