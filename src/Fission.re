@@ -95,8 +95,7 @@ type fsn('a) = {
   login: (string, string) => fsnUser('a),
 };
 
-let fissionUser =
-    (base: string, username: string, password: string): fsnUser('a) => {
+let fissionUser = (base, username, password) => {
   let user = {username, password};
   {
     base,
@@ -109,7 +108,7 @@ let fissionUser =
   };
 };
 
-let fission = (base: string): fsn('a) => {
+let fission = base => {
   {base, content, url: url(base), login: fissionUser(base)};
 };
 

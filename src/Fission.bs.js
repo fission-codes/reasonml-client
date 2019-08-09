@@ -120,6 +120,8 @@ function fission(base) {
         ];
 }
 
+var instance = fission(baseURL);
+
 var env_username = "ca2c70bc13298c5109ee";
 
 var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
@@ -138,4 +140,5 @@ exports.pin = pin;
 exports.remove = remove;
 exports.fissionUser = fissionUser;
 exports.fission = fission;
+exports.instance = instance;
 /* octetHeader Not a pure module */
