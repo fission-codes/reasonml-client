@@ -6,9 +6,21 @@ var Axios$1 = require("axios");
 
 var baseURL = "http://localhost:1337";
 
-var octetHeader = Axios.$$Headers[/* fromObj */0]({
-      "content-type": "application/octet-stream"
-    });
+var ipfsURL = "http://localhost:1337/ipfs";
+
+var cidsURL = "http://localhost:1337/ipfs/cids";
+
+function url(domain, cid) {
+  return domain + ("/ipfs/" + cid);
+}
+
+function handle(a) {
+  return a.then((function (response) {
+                  return Promise.resolve(response.data);
+                })).catch((function (prim) {
+                return Promise.resolve(prim);
+              }));
+}
 
 function convAuth(auth) {
   return {
@@ -17,68 +29,45 @@ function convAuth(auth) {
         };
 }
 
-function url(baseURL, cid) {
-  return baseURL + ("/ipfs/" + cid);
+var octetHeader = Axios.$$Headers[/* fromObj */0]({
+      "content-type": "application/octet-stream"
+    });
+
+function octetConfig(auth) {
+  return {
+          headers: octetHeader,
+          auth: convAuth(auth)
+        };
+}
+
+function blankConfig(auth) {
+  return {
+          auth: convAuth(auth)
+        };
 }
 
 function content(cid) {
-  return Axios$1.get(url(baseURL, cid)).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.get(url(baseURL, cid)));
 }
 
 function list(auth) {
-  return Axios$1.get("http://localhost:1337/ipfs/cids", {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.get(cidsURL, blankConfig(auth)));
 }
 
 function add(auth, content) {
-  return Axios$1.post("http://localhost:1337/ipfs/", content, {
-                  headers: octetHeader,
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.post(ipfsURL, content, octetConfig(auth)));
 }
 
 function addStr(auth, _str) {
-  return Axios$1.post("http://localhost:1337/ipfs/", str, {
-                  headers: octetHeader,
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.post(ipfsURL, str, octetConfig(auth)));
 }
 
 function pin(auth, cid) {
-  return Axios$1.put(url(baseURL, cid), ({}), {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.put(url(baseURL, cid), ({}), blankConfig(auth)));
 }
 
 function remove(auth, cid) {
-  return Axios$1.delete(url(baseURL, cid), {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+  return handle(Axios$1.delete(url(baseURL, cid), blankConfig(auth)));
 }
 
 function fissionUser(base, username, password) {
@@ -87,22 +76,22 @@ function fissionUser(base, username, password) {
     /* password */password
   ];
   return /* record */[
-          /* base */base,
-          /* content */content,
-          /* url */(function (param) {
-              return url(base, param);
-            }),
           /* add */(function (param) {
               return add(user, param);
             }),
           /* addStr */(function (param) {
               return addStr(user, param);
             }),
+          /* base */base,
+          /* content */content,
           /* pin */(function (param) {
               return pin(user, param);
             }),
           /* remove */(function (param) {
               return remove(user, param);
+            }),
+          /* url */(function (param) {
+              return url(base, param);
             })
         ];
 }
@@ -111,11 +100,11 @@ function fission(base) {
   return /* record */[
           /* base */base,
           /* content */content,
-          /* url */(function (param) {
-              return url(base, param);
-            }),
           /* login */(function (param, param$1) {
               return fissionUser(base, param, param$1);
+            }),
+          /* url */(function (param) {
+              return url(base, param);
             })
         ];
 }
@@ -127,11 +116,16 @@ var env_username = "ca2c70bc13298c5109ee";
 var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 
 exports.baseURL = baseURL;
+exports.ipfsURL = ipfsURL;
+exports.cidsURL = cidsURL;
+exports.url = url;
 exports.env_username = env_username;
 exports.env_password = env_password;
-exports.octetHeader = octetHeader;
+exports.handle = handle;
 exports.convAuth = convAuth;
-exports.url = url;
+exports.octetHeader = octetHeader;
+exports.octetConfig = octetConfig;
+exports.blankConfig = blankConfig;
 exports.content = content;
 exports.list = list;
 exports.add = add;
