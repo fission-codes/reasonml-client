@@ -96,6 +96,24 @@ remove("QmQbPPkak9itW3v8WSohtonCBiJcrnAUhrSW1TGPnmWe3f", user).then((function (r
         return Promise.resolve((console.log(error), /* () */0));
       }));
 
+function fission(base, auth) {
+  return /* record */[
+          /* base */base,
+          /* content */content,
+          /* url */(function (param) {
+              return url(base, param);
+            }),
+          /* pin */(function (cid) {
+              return pin(cid, auth);
+            })
+        ];
+}
+
+var me = /* record */[
+  /* age */5,
+  /* name */"Big Reason"
+];
+
 exports.baseURL = baseURL;
 exports.env_username = env_username;
 exports.env_password = env_password;
@@ -109,4 +127,6 @@ exports.addStr = addStr;
 exports.pin = pin;
 exports.remove = remove;
 exports.user = user;
+exports.me = me;
+exports.fission = fission;
 /* octetHeader Not a pure module */

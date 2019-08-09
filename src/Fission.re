@@ -2,6 +2,7 @@ let baseURL = "http://localhost:1337";
 let env_username = "ca2c70bc13298c5109ee";
 let env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 
+
 type cid = string;
 type auth = {
   username: string,
@@ -85,3 +86,37 @@ Js.Promise.(
   |> then_(result => resolve(Js.Console.log(result)))
   |> catch(error => resolve(Js.Console.log(error)))
 );
+
+type person = {
+  age: int,
+  name: string
+};
+
+let me = {
+  age: 5,
+  name: "Big Reason"
+};
+
+/* module Foo = { */
+/*   let */
+/* } */
+
+/* val foo: (int -> int) //= (a: int) => a + 1 */
+
+/* type foo = (f: (int): int, i: int): int; */
+
+type fsn = {
+  base: string,
+  content: cid => Js.Promise.t(Js.Promise.error),
+  url: cid => string,
+  pin: cid => Js.Promise.t(Js.Promise.error)
+};
+
+let fission = (base: string, auth: auth) => {
+  {
+    base,
+    content,
+    url: url(base),
+    pin: (cid: cid) => pin(cid, auth)
+  }
+}
