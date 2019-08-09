@@ -63,7 +63,7 @@ function addStr(auth, _str) {
 }
 
 function pin(auth, cid) {
-  return handle(Axios$1.put(url(baseURL, cid), ({}), blankConfig(auth)));
+  return handle(Axios$1.put(url(baseURL, cid), { }, blankConfig(auth)));
 }
 
 function remove(auth, cid) {

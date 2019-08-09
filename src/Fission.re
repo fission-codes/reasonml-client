@@ -85,7 +85,7 @@ let addStr = (auth, _str) =>
 let pin = (auth, cid) =>
   baseURL
   -> url(cid)
-  -> Axios.putDatac([%bs.raw {|{}|}], blankConfig(auth))
+  -> Axios.putDatac(Js.Obj.empty(), blankConfig(auth))
   -> handle
 
 let remove = (auth, cid) =>
