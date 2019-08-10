@@ -45,7 +45,7 @@ let env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
 
 let url = (domain: string, cid: cid) => domain ++ "/ipfs/" ++ cid;
 
-let convAuth = (auth: auth) => {
+let convAuth = auth => {
   "username": auth.username,
   "password": auth.password,
 };
