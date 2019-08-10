@@ -10,10 +10,6 @@ var ipfsURL = "http://localhost:1337/ipfs";
 
 var cidsURL = "http://localhost:1337/ipfs/cids";
 
-function url(domain, cid) {
-  return domain + ("/ipfs/" + cid);
-}
-
 function convAuth(auth) {
   return {
           username: auth[/* username */0],
@@ -21,12 +17,16 @@ function convAuth(auth) {
         };
 }
 
-function handle(a) {
-  return a.then((function (response) {
+function $$await(promise) {
+  return promise.then((function (response) {
                   return Promise.resolve(response.data);
                 })).catch((function (prim) {
                 return Promise.resolve(prim);
               }));
+}
+
+function url(domain, cid) {
+  return domain + ("/ipfs/" + cid);
 }
 
 var octetHeader = Axios.$$Headers[/* fromObj */0]({
@@ -47,27 +47,27 @@ function blankConfig(auth) {
 }
 
 function content(cid) {
-  return handle(Axios$1.get(url(baseURL, cid)));
+  return $$await(Axios$1.get(url(baseURL, cid)));
 }
 
 function list(auth) {
-  return handle(Axios$1.get(cidsURL, blankConfig(auth)));
+  return $$await(Axios$1.get(cidsURL, blankConfig(auth)));
 }
 
 function add(auth, content) {
-  return handle(Axios$1.post(ipfsURL, content, octetConfig(auth)));
+  return $$await(Axios$1.post(ipfsURL, content, octetConfig(auth)));
 }
 
 function addStr(auth, _str) {
-  return handle(Axios$1.post(ipfsURL, str, octetConfig(auth)));
+  return $$await(Axios$1.post(ipfsURL, str, octetConfig(auth)));
 }
 
 function pin(auth, cid) {
-  return handle(Axios$1.put(url(baseURL, cid), { }, blankConfig(auth)));
+  return $$await(Axios$1.put(url(baseURL, cid), { }, blankConfig(auth)));
 }
 
 function remove(auth, cid) {
-  return handle(Axios$1.delete(url(baseURL, cid), blankConfig(auth)));
+  return $$await(Axios$1.delete(url(baseURL, cid), blankConfig(auth)));
 }
 
 function fissionUser(base, username, password) {
@@ -76,13 +76,13 @@ function fissionUser(base, username, password) {
     /* password */password
   ];
   return /* record */[
+          /* base */base,
           /* add */(function (param) {
               return add(user, param);
             }),
           /* addStr */(function (param) {
               return addStr(user, param);
             }),
-          /* base */base,
           /* content */content,
           /* pin */(function (param) {
               return pin(user, param);
@@ -99,10 +99,10 @@ function fissionUser(base, username, password) {
 function fission(base) {
   return /* record */[
           /* base */base,
-          /* content */content,
           /* login */(function (param, param$1) {
               return fissionUser(base, param, param$1);
             }),
+          /* content */content,
           /* url */(function (param) {
               return url(base, param);
             })
@@ -120,9 +120,9 @@ exports.ipfsURL = ipfsURL;
 exports.cidsURL = cidsURL;
 exports.env_username = env_username;
 exports.env_password = env_password;
-exports.url = url;
 exports.convAuth = convAuth;
-exports.handle = handle;
+exports.$$await = $$await;
+exports.url = url;
 exports.octetHeader = octetHeader;
 exports.octetConfig = octetConfig;
 exports.blankConfig = blankConfig;
