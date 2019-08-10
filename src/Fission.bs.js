@@ -4,19 +4,6 @@
 var Axios = require("bs-axios/src/axios.js");
 var Axios$1 = require("axios");
 
-var baseURL = "http://localhost:1337";
-
-var ipfsURL = "http://localhost:1337/ipfs";
-
-var cidsURL = "http://localhost:1337/ipfs/cids";
-
-function convAuth(auth) {
-  return {
-          username: auth[/* username */0],
-          password: auth[/* password */1]
-        };
-}
-
 function $$await(promise) {
   return promise.then((function (response) {
                   return Promise.resolve(response.data);
@@ -25,114 +12,183 @@ function $$await(promise) {
               }));
 }
 
-function url(domain, cid) {
-  return domain + ("/ipfs/" + cid);
-}
-
 var octetHeader = Axios.$$Headers[/* fromObj */0]({
       "content-type": "application/octet-stream"
     });
 
-function octetConfig(auth) {
-  return {
-          headers: octetHeader,
-          auth: convAuth(auth)
-        };
+function Simple(Base) {
+  var ipfsURL = Base[/* baseUrl */0] + "/ipfs";
+  var cidsURL = ipfsURL + "/cids";
+  var url = function (cid) {
+    return ipfsURL + cid;
+  };
+  var content = function (cid) {
+    return $$await(Axios$1.get(ipfsURL + cid));
+  };
+  return /* module */[
+          /* ipfsURL */ipfsURL,
+          /* cidsURL */cidsURL,
+          /* url */url,
+          /* content */content
+        ];
 }
 
-function blankConfig(auth) {
-  return {
-          auth: convAuth(auth)
-        };
+function User(Base) {
+  return (function (Auth) {
+      var ipfsURL = Base[/* baseUrl */0] + "/ipfs";
+      var cidsURL = ipfsURL + "/cids";
+      var url = function (cid) {
+        return ipfsURL + cid;
+      };
+      var content = function (cid) {
+        return $$await(Axios$1.get(ipfsURL + cid));
+      };
+      var auth = {
+        username: Auth[/* username */0],
+        password: Auth[/* password */1]
+      };
+      var octetConfig = {
+        headers: octetHeader,
+        auth: auth
+      };
+      var blankConfig = {
+        auth: auth
+      };
+      var myCIDs = function (param) {
+        return $$await(Axios$1.get(cidsURL, blankConfig));
+      };
+      var add = function (content) {
+        return $$await(Axios$1.post(ipfsURL, content, octetConfig));
+      };
+      var addStr = function (_str) {
+        return $$await(Axios$1.post(ipfsURL, str, octetConfig));
+      };
+      var pin = function (cid) {
+        return $$await(Axios$1.put(ipfsURL + cid, { }, blankConfig));
+      };
+      var remove = function (cid) {
+        return $$await(Axios$1.delete(ipfsURL + cid, blankConfig));
+      };
+      return /* module */[
+              /* ipfsURL */ipfsURL,
+              /* cidsURL */cidsURL,
+              /* url */url,
+              /* content */content,
+              /* auth */auth,
+              /* octetConfig */octetConfig,
+              /* blankConfig */blankConfig,
+              /* myCIDs */myCIDs,
+              /* add */add,
+              /* addStr */addStr,
+              /* pin */pin,
+              /* remove */remove
+            ];
+    });
+}
+
+var baseUrl = "http://localhost:1337";
+
+var DefaultURL = /* module */[/* baseUrl */baseUrl];
+
+var username = "ca2c70bc13298c5109ee";
+
+var password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
+
+var DefaultAuth = /* module */[
+  /* username */username,
+  /* password */password
+];
+
+var ipfsURL = "http://localhost:1337/ipfs";
+
+var cidsURL = "http://localhost:1337/ipfs/cids";
+
+function url(cid) {
+  return ipfsURL + cid;
 }
 
 function content(cid) {
-  return $$await(Axios$1.get(url(baseURL, cid)));
+  return $$await(Axios$1.get(ipfsURL + cid));
 }
 
-function list(auth) {
-  return $$await(Axios$1.get(cidsURL, blankConfig(auth)));
+var Foo = /* module */[
+  /* ipfsURL */ipfsURL,
+  /* cidsURL */cidsURL,
+  /* url */url,
+  /* content */content
+];
+
+var ipfsURL$1 = "http://localhost:1337/ipfs";
+
+var cidsURL$1 = "http://localhost:1337/ipfs/cids";
+
+function url$1(cid) {
+  return ipfsURL$1 + cid;
 }
 
-function add(auth, content) {
-  return $$await(Axios$1.post(ipfsURL, content, octetConfig(auth)));
+function content$1(cid) {
+  return $$await(Axios$1.get(ipfsURL$1 + cid));
 }
 
-function addStr(auth, _str) {
-  return $$await(Axios$1.post(ipfsURL, str, octetConfig(auth)));
+var auth = {
+  username: username,
+  password: password
+};
+
+var octetConfig = {
+  headers: octetHeader,
+  auth: auth
+};
+
+var blankConfig = {
+  auth: auth
+};
+
+function myCIDs(param) {
+  return $$await(Axios$1.get(cidsURL$1, blankConfig));
 }
 
-function pin(auth, cid) {
-  return $$await(Axios$1.put(url(baseURL, cid), { }, blankConfig(auth)));
+function add(content) {
+  return $$await(Axios$1.post(ipfsURL$1, content, octetConfig));
 }
 
-function remove(auth, cid) {
-  return $$await(Axios$1.delete(url(baseURL, cid), blankConfig(auth)));
+function addStr(_str) {
+  return $$await(Axios$1.post(ipfsURL$1, str, octetConfig));
 }
 
-function fissionUser(base, username, password) {
-  var user = /* record */[
-    /* username */username,
-    /* password */password
-  ];
-  return /* record */[
-          /* base */base,
-          /* add */(function (param) {
-              return add(user, param);
-            }),
-          /* addStr */(function (param) {
-              return addStr(user, param);
-            }),
-          /* content */content,
-          /* pin */(function (param) {
-              return pin(user, param);
-            }),
-          /* remove */(function (param) {
-              return remove(user, param);
-            }),
-          /* url */(function (param) {
-              return url(base, param);
-            })
-        ];
+function pin(cid) {
+  return $$await(Axios$1.put(ipfsURL$1 + cid, { }, blankConfig));
 }
 
-function fission(base) {
-  return /* record */[
-          /* base */base,
-          /* login */(function (param, param$1) {
-              return fissionUser(base, param, param$1);
-            }),
-          /* content */content,
-          /* url */(function (param) {
-              return url(base, param);
-            })
-        ];
+function remove(cid) {
+  return $$await(Axios$1.delete(ipfsURL$1 + cid, blankConfig));
 }
 
-var instance = fission(baseURL);
+var Bar = /* module */[
+  /* ipfsURL */ipfsURL$1,
+  /* cidsURL */cidsURL$1,
+  /* url */url$1,
+  /* content */content$1,
+  /* auth */auth,
+  /* octetConfig */octetConfig,
+  /* blankConfig */blankConfig,
+  /* myCIDs */myCIDs,
+  /* add */add,
+  /* addStr */addStr,
+  /* pin */pin,
+  /* remove */remove
+];
 
-var env_username = "ca2c70bc13298c5109ee";
+var server = ipfsURL;
 
-var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
-
-exports.baseURL = baseURL;
-exports.ipfsURL = ipfsURL;
-exports.cidsURL = cidsURL;
-exports.env_username = env_username;
-exports.env_password = env_password;
-exports.convAuth = convAuth;
 exports.$$await = $$await;
-exports.url = url;
 exports.octetHeader = octetHeader;
-exports.octetConfig = octetConfig;
-exports.blankConfig = blankConfig;
-exports.content = content;
-exports.list = list;
-exports.add = add;
-exports.addStr = addStr;
-exports.pin = pin;
-exports.remove = remove;
-exports.fissionUser = fissionUser;
-exports.fission = fission;
-exports.instance = instance;
+exports.Simple = Simple;
+exports.User = User;
+exports.DefaultURL = DefaultURL;
+exports.DefaultAuth = DefaultAuth;
+exports.Foo = Foo;
+exports.Bar = Bar;
+exports.server = server;
+exports.myCIDs = myCIDs;
 /* octetHeader Not a pure module */

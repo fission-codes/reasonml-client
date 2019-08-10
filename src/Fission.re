@@ -1,111 +1,85 @@
-// Types
-
 type cid = string;
-
-type auth = {
-  username: string,
-  password: string,
-};
-
-type fsnUser('content) = {
-  base:    string,
-  add:     Js.t('content) => Js.Promise.t(Js.Promise.error),
-  addStr:  cid => Js.Promise.t(Js.Promise.error),
-  content: cid => Js.Promise.t(Js.Promise.error),
-  pin:     cid => Js.Promise.t(Js.Promise.error),
-  remove:  cid => Js.Promise.t(Js.Promise.error),
-  url:     cid => string
-};
-
-type fsn('content) = {
-  base:    string,
-  login:   (string, string) => fsnUser('content),
-  content: cid => Js.Promise.t(Js.Promise.error),
-  url:     cid => string
-};
-
-// Constants
-
-let baseURL = "http://localhost:1337";
-let ipfsURL = baseURL ++ "/ipfs";
-let cidsURL = ipfsURL ++ "/cids"
-
-let env_username = "ca2c70bc13298c5109ee";
-let env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
-
-// Helpers
-
-let convAuth = auth => {
-  "username": auth.username,
-  "password": auth.password,
-};
 
 let await = promise =>
   promise
   |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
   |> Js.Promise.catch(Js.Promise.resolve);
 
-let url = (domain: string, cid: cid) => domain ++ "/ipfs/" ++ cid;
 let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
-let octetConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ());
-let blankConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ());
 
-// Main Show
+module type URL = {
+  let baseUrl: string;
+};
 
-let content = cid =>
-  baseURL
-  -> url(cid)
-  -> Axios.get
-  -> await
+module type Auth = {
+  let username: string;
+  let password: string;
+};
 
-let list = auth =>
-  cidsURL
-  -> Axios.getc(blankConfig(auth))
-  -> await
+module Simple = (Base: URL) => {
+  let ipfsURL = Base.baseUrl ++ "/ipfs";
+  let cidsURL = ipfsURL ++ "/cids"
+  let url     = cid => ipfsURL ++ cid;
 
-let add = (auth, content) =>
-  ipfsURL
-  -> Axios.postDatac(content, octetConfig(auth))
-  -> await
+  let content = cid =>
+    cid
+    -> url
+    -> Axios.get
+    -> await;
+};
 
-let addStr = (auth, _str) =>
-  ipfsURL
-  -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
-  -> await
+module User = (Base: URL, Auth: Auth) => {
+  include Simple(Base);
 
-let pin = (auth, cid) =>
-  baseURL
-  -> url(cid)
-  -> Axios.putDatac(Js.Obj.empty(), blankConfig(auth))
-  -> await
-
-let remove = (auth, cid) =>
-  baseURL
-  -> url(cid)
-  -> Axios.deletec(blankConfig(auth))
-  -> await
-
-// Records
-
-let fissionUser = (base, username, password) => {
-  let user = {username, password};
-
-  {
-    base,
-    content,
-    add:    add(user),
-    addStr: addStr(user),
-    pin:    pin(user),
-    remove: remove(user),
-    url:    url(base)
+  let auth = {
+    "username": Auth.username,
+    "password": Auth.password,
   };
+
+  let octetConfig = Axios.makeConfig(~auth, ~headers=octetHeader, ());
+  let blankConfig = Axios.makeConfig(~auth, ());
+
+  let myCIDs = () =>
+    cidsURL
+    -> Axios.getc(blankConfig)
+    -> await;
+
+  let add = content =>
+    ipfsURL
+    -> Axios.postDatac(content, octetConfig)
+    -> await;
+
+  let addStr = _str =>
+    ipfsURL
+    -> Axios.postDatac([%bs.raw {|str|}], octetConfig)
+    -> await;
+
+  let pin = cid =>
+    cid
+    -> url
+    -> Axios.putDatac(Js.Obj.empty(), blankConfig)
+    -> await;
+
+  let remove = cid =>
+    cid
+    -> url
+    -> Axios.deletec(blankConfig)
+    -> await;
 };
 
-let fission = base => {
-  base,
-  content,
-  login: fissionUser(base),
-  url:   url(base)
+////////////////////////////////////////////////////////////////////////////////
+
+module DefaultURL = {
+  let baseUrl = "http://localhost:1337";
 };
 
-let instance: fsn(string) = fission(baseURL);
+module DefaultAuth = {
+  let username = "ca2c70bc13298c5109ee";
+  let password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
+};
+
+module Foo = Simple(DefaultURL);
+module Bar = User(DefaultURL, DefaultAuth);
+
+let server = Foo.ipfsURL;
+let myCIDs = Bar.myCIDs
