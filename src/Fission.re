@@ -45,7 +45,7 @@ let await = promise =>
   |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
   |> Js.Promise.catch(Js.Promise.resolve);
 
-let url = (domain: string, cid: cid) => domain ++ "/ipfs/" ++ cid;
+let url = (domain, cid) => domain ++ "/ipfs/" ++ cid;
 let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
 let octetConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ());
 let blankConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ());
