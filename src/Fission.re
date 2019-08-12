@@ -56,34 +56,34 @@ let content = cid =>
   baseURL
   -> url(cid)
   -> Axios.get
-  -> await
+  -> await;
 
 let list = auth =>
   cidsURL
   -> Axios.getc(blankConfig(auth))
-  -> await
+  -> await;
 
 let add = (auth, content) =>
   ipfsURL
   -> Axios.postDatac(content, octetConfig(auth))
-  -> await
+  -> await;
 
 let addStr = (auth, _str) =>
   ipfsURL
   -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
-  -> await
+  -> await;
 
 let pin = (auth, cid) =>
   baseURL
   -> url(cid)
   -> Axios.putDatac(Js.Obj.empty(), blankConfig(auth))
-  -> await
+  -> await;
 
 let remove = (auth, cid) =>
   baseURL
   -> url(cid)
   -> Axios.deletec(blankConfig(auth))
-  -> await
+  -> await;
 
 // Records
 
