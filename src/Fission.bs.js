@@ -112,6 +112,10 @@ function create$1(base, auth) {
 
 var User = /* module */[/* create */create$1];
 
+var newSimple = create;
+
+var newUser = create$1;
+
 exports.$$await = $$await;
 exports.convAuth = convAuth;
 exports.octetHeader = octetHeader;
@@ -127,5 +131,7 @@ exports.addStr = addStr;
 exports.pin = pin;
 exports.remove = remove;
 exports.Simple = Simple;
+exports.newSimple = newSimple;
 exports.User = User;
+exports.newUser = newUser;
 /* octetHeader Not a pure module */

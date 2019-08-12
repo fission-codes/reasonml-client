@@ -1,6 +1,8 @@
 // Types
 
+[@gentype]
 type cid = string;
+[@gentype]
 
 type auth = {
   username: string,
@@ -19,41 +21,50 @@ let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stre
 let octetConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ());
 let blankConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ());
 
+[@gentype]
 let ipfsURL = (domain) => domain ++ "/ipfs";
-let cidsURL = (domain) => ipfsURL(domain) ++ "/cids"
+[@gentype]
+let cidsURL = (domain) => ipfsURL(domain) ++ "/cids";
+[@gentype]
 let url = (domain, cid) => ipfsURL(domain) ++ "/" ++ cid;
 
 // Main Show
 
+[@gentype]
 let content = (base, cid) =>
   url(base, cid)
   -> Axios.get
-  -> await
+  -> await;
 
+[@gentype]
 let list = (base, auth) =>
   cidsURL(base)
   -> Axios.getc(blankConfig(auth))
-  -> await
+  -> await;
 
+[@gentype]
 let add = (base, auth, content) =>
   ipfsURL(base)
   -> Axios.postDatac(content, octetConfig(auth))
-  -> await
+  -> await;
 
+[@gentype]
 let addStr = (base, auth, _str) =>
   ipfsURL(base)
   -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
-  -> await
+  -> await;
 
+[@gentype]
 let pin = (base, auth, cid) =>
   url(base, cid)
   -> Axios.putDatac(Js.Obj.empty(), blankConfig(auth))
-  -> await
+  -> await;
 
+[@gentype]
 let remove = (base, auth, cid) =>
   url(base, cid)
   -> Axios.deletec(blankConfig(auth))
-  -> await
+  -> await;
 
 // Modules
 
@@ -64,12 +75,15 @@ module Simple {
     content: cid => Js.Promise.t(Js.Promise.error)
   };
 
+  [@gentype]
   let create = base => {
     base,
     url: url(base),
     content: content(base)
   }
 }
+[@gentype]
+let newSimple = Simple.create;
 
 module User {
   type t('content) = {
@@ -92,3 +106,5 @@ module User {
     remove: remove(base, auth),
   }
 }
+[@gentype]
+let newUser = User.create
