@@ -4,15 +4,13 @@
 var Axios = require("bs-axios/src/axios.js");
 var Axios$1 = require("axios");
 
-var baseURL = "http://localhost:1337";
-
-var env_username = "ca2c70bc13298c5109ee";
-
-var env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
-
-var octetHeader = Axios.$$Headers[/* fromObj */0]({
-      "content-type": "application/octet-stream"
-    });
+function $$await(promise) {
+  return promise.then((function (response) {
+                  return Promise.resolve(response.data);
+                })).catch((function (prim) {
+                return Promise.resolve(prim);
+              }));
+}
 
 function convAuth(auth) {
   return {
@@ -21,86 +19,106 @@ function convAuth(auth) {
         };
 }
 
-function url(baseURL, cid) {
-  return baseURL + ("/ipfs/" + cid);
+var octetHeader = Axios.$$Headers[/* fromObj */0]({
+      "content-type": "application/octet-stream"
+    });
+
+function octetConfig(auth) {
+  return {
+          headers: octetHeader,
+          auth: convAuth(auth)
+        };
 }
 
-function content(cid) {
-  return Axios$1.get(url(baseURL, cid)).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function blankConfig(auth) {
+  return {
+          auth: convAuth(auth)
+        };
 }
 
-function list(auth) {
-  return Axios$1.get("http://localhost:1337/ipfs/cids", {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function ipfsURL(domain) {
+  return domain + "/ipfs";
 }
 
-function add(content, auth) {
-  return Axios$1.post("http://localhost:1337/ipfs/", content, {
-                  headers: octetHeader,
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function cidsURL(domain) {
+  return domain + "/ipfs/cids";
 }
 
-function addStr(_str, auth) {
-  return Axios$1.post("http://localhost:1337/ipfs/", str, {
-                  headers: octetHeader,
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function url(domain, cid) {
+  return domain + "/ipfs/" + cid;
 }
 
-function pin(cid, auth) {
-  return Axios$1.put(url(baseURL, cid), ({}), {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function content(base, cid) {
+  return $$await(Axios$1.get(url(base, cid)));
 }
 
-function remove(cid, auth) {
-  return Axios$1.delete(url(baseURL, cid), {
-                  auth: convAuth(auth)
-                }).then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (error) {
-                return Promise.resolve(error);
-              }));
+function list(base, auth) {
+  return $$await(Axios$1.get(base + "/ipfs/cids", blankConfig(auth)));
 }
 
-var user = /* record */[
-  /* username */env_username,
-  /* password */env_password
-];
+function add(base, auth, content) {
+  return $$await(Axios$1.post(base + "/ipfs", content, octetConfig(auth)));
+}
 
-remove("QmQbPPkak9itW3v8WSohtonCBiJcrnAUhrSW1TGPnmWe3f", user).then((function (result) {
-          return Promise.resolve((console.log(result), /* () */0));
-        })).catch((function (error) {
-        return Promise.resolve((console.log(error), /* () */0));
-      }));
+function addStr(base, auth, _str) {
+  return $$await(Axios$1.post(base + "/ipfs", str, octetConfig(auth)));
+}
 
-exports.baseURL = baseURL;
-exports.env_username = env_username;
-exports.env_password = env_password;
-exports.octetHeader = octetHeader;
+function pin(base, auth, cid) {
+  return $$await(Axios$1.put(url(base, cid), { }, blankConfig(auth)));
+}
+
+function remove(base, auth, cid) {
+  return $$await(Axios$1.delete(url(base, cid), blankConfig(auth)));
+}
+
+function create(base) {
+  return /* record */[
+          /* base */base,
+          /* url */(function (param) {
+              return url(base, param);
+            }),
+          /* content */(function (param) {
+              return content(base, param);
+            })
+        ];
+}
+
+var Simple = /* module */[/* create */create];
+
+function create$1(base, auth) {
+  return /* record */[
+          /* base */base,
+          /* url */(function (param) {
+              return url(base, param);
+            }),
+          /* content */(function (param) {
+              return content(base, param);
+            }),
+          /* add */(function (param) {
+              return add(base, auth, param);
+            }),
+          /* addStr */(function (param) {
+              return addStr(base, auth, param);
+            }),
+          /* pin */(function (param) {
+              return pin(base, auth, param);
+            }),
+          /* remove */(function (param) {
+              return remove(base, auth, param);
+            })
+        ];
+}
+
+var User = /* module */[/* create */create$1];
+
+exports.$$await = $$await;
 exports.convAuth = convAuth;
+exports.octetHeader = octetHeader;
+exports.octetConfig = octetConfig;
+exports.blankConfig = blankConfig;
+exports.ipfsURL = ipfsURL;
+exports.cidsURL = cidsURL;
 exports.url = url;
 exports.content = content;
 exports.list = list;
@@ -108,5 +126,6 @@ exports.add = add;
 exports.addStr = addStr;
 exports.pin = pin;
 exports.remove = remove;
-exports.user = user;
+exports.Simple = Simple;
+exports.User = User;
 /* octetHeader Not a pure module */

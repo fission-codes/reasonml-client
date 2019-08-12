@@ -1,87 +1,94 @@
-let baseURL = "http://localhost:1337";
-let env_username = "ca2c70bc13298c5109ee";
-let env_password = "VlBgonAFjZon2wd2VkTR3uc*p-XMd(L_Zf$nFvACpHQShqJ_Hp2Pa";
+// Types
 
 type cid = string;
+
 type auth = {
   username: string,
   password: string,
 };
 
-let octetHeader =
-  Axios.Headers.fromObj({"content-type": "application/octet-stream"});
+// Helpers
 
-let convAuth = (auth: auth) => {
-  "username": auth.username,
-  "password": auth.password,
-};
+let await = promise =>
+  promise
+  |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
+  |> Js.Promise.catch(Js.Promise.resolve);
 
-let url = (baseURL: string, cid: cid) => baseURL ++ "/ipfs/" ++ cid;
+let convAuth = auth => { "username": auth.username, "password": auth.password, };
+let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
+let octetConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ());
+let blankConfig = auth => Axios.makeConfig(~auth=convAuth(auth), ());
 
-let content = (cid: cid) =>
-  Js.Promise.(
-    Axios.get(url(baseURL, cid))
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+let ipfsURL = (domain) => domain ++ "/ipfs";
+let cidsURL = (domain) => ipfsURL(domain) ++ "/cids"
+let url = (domain, cid) => ipfsURL(domain) ++ "/" ++ cid;
 
-let list = (auth: auth) =>
-  Js.Promise.(
-    Axios.getc(
-      baseURL ++ "/ipfs/cids",
-      Axios.makeConfig(~auth=convAuth(auth), ()),
-    )
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+// Main Show
 
-let add = (content: 'a, auth: auth) =>
-  Js.Promise.(
-    Axios.postDatac(
-      baseURL ++ "/ipfs/",
-      content,
-      Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ()),
-    )
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+let content = (base, cid) =>
+  url(base, cid)
+  -> Axios.get
+  -> await
 
-let addStr = (_str: string, auth: auth) =>
-  Js.Promise.(
-    Axios.postDatac(
-      baseURL ++ "/ipfs/",
-      [%bs.raw {|str|}],
-      Axios.makeConfig(~auth=convAuth(auth), ~headers=octetHeader, ()),
-    )
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+let list = (base, auth) =>
+  cidsURL(base)
+  -> Axios.getc(blankConfig(auth))
+  -> await
 
-let pin = (cid: cid, auth: auth) =>
-  Js.Promise.(
-    Axios.putDatac(
-      url(baseURL, cid),
-      [%bs.raw {|{}|}],
-      Axios.makeConfig(~auth=convAuth(auth), ()),
-    )
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+let add = (base, auth, content) =>
+  ipfsURL(base)
+  -> Axios.postDatac(content, octetConfig(auth))
+  -> await
 
-let remove = (cid: cid, auth: auth) =>
-  Js.Promise.(
-    Axios.deletec(
-      url(baseURL, cid),
-      Axios.makeConfig(~auth=convAuth(auth), ()),
-    )
-    |> then_(response => resolve(response##data))
-    |> catch(error => resolve(error))
-  );
+let addStr = (base, auth, _str) =>
+  ipfsURL(base)
+  -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
+  -> await
 
-// testing purposes, delete later
-let user = {username: env_username, password: env_password};
-Js.Promise.(
-  remove("QmQbPPkak9itW3v8WSohtonCBiJcrnAUhrSW1TGPnmWe3f", user)
-  |> then_(result => resolve(Js.Console.log(result)))
-  |> catch(error => resolve(Js.Console.log(error)))
-);
+let pin = (base, auth, cid) =>
+  url(base, cid)
+  -> Axios.putDatac(Js.Obj.empty(), blankConfig(auth))
+  -> await
+
+let remove = (base, auth, cid) =>
+  url(base, cid)
+  -> Axios.deletec(blankConfig(auth))
+  -> await
+
+// Modules
+
+module Simple {
+  type t = {
+    base:    string,
+    url:     cid => string,
+    content: cid => Js.Promise.t(Js.Promise.error)
+  };
+
+  let create = base => {
+    base,
+    url: url(base),
+    content: content(base)
+  }
+}
+
+module User {
+  type t('content) = {
+    base:    string,
+    url:     cid => string,
+    content: cid => Js.Promise.t(Js.Promise.error),
+    add:     Js.t('content) => Js.Promise.t(Js.Promise.error),
+    addStr:  cid => Js.Promise.t(Js.Promise.error),
+    pin:     cid => Js.Promise.t(Js.Promise.error),
+    remove:  cid => Js.Promise.t(Js.Promise.error),
+  };
+
+  let create = (base, auth) => {
+    base,
+    url: url(base),
+    content: content(base),
+    add: add(base, auth),
+    addStr: addStr(base, auth),
+    pin: pin(base, auth),
+    remove: remove(base, auth),
+  }
+}
