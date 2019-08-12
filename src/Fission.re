@@ -55,7 +55,7 @@ let remove = (base, auth, cid) =>
   -> Axios.deletec(blankConfig(auth))
   -> await
 
-// Records
+// Modules
 
 module Simple {
   type t = {
