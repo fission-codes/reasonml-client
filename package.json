@@ -13,7 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "bs-axios": "0.0.42",
-    "bs-platform": "^5.0.6"
+    "bs-platform": "^5.0.6",
+    "gentype": "^2.34.0"
   },
   "dependencies": {
     "bs-fetch": "github:buckletypes/bs-fetch"
