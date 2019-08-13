@@ -18,8 +18,8 @@ export const content = function (Arg1, Arg2) {
   return result
 };
 
-export const list = function (Arg1, Arg2) {
-  const result = Curry._2(FissionBS.list, Arg1, [Arg2.username, Arg2.password]);
+export const cids = function (Arg1, Arg2, Arg3) {
+  const result = Curry._3(FissionBS.cids, Arg1, [Arg2.username, Arg2.password], Arg3);
   return result
 };
 
@@ -55,5 +55,5 @@ export const newSimple = function (Arg1) {
 
 export const newUser = function (Arg1, Arg2) {
   const result = Curry._2(FissionBS.newUser, Arg1, [Arg2.username, Arg2.password]);
-  return {base:result[0], url:result[1], content:result[2], add:result[3], addStr:result[4], pin:result[5], remove:result[6]}
+  return {base:result[0], url:result[1], content:result[2], cids:result[3], add:result[4], addStr:result[5], pin:result[6], remove:result[7]}
 };

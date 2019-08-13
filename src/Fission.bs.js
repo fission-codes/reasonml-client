@@ -50,7 +50,7 @@ function content(base, cid) {
   return $$await(Axios$1.get(url(base, cid)));
 }
 
-function list(base, auth) {
+function cids(base, auth, _str) {
   return $$await(Axios$1.get(base + "/ipfs/cids", blankConfig(auth)));
 }
 
@@ -59,10 +59,6 @@ function add(base, auth, content) {
 }
 
 function addStr(base, auth, _str) {
-  console.log("quick test: " + base);
-  console.log("quick test: " + auth[/* username */0]);
-  console.log("quick test: " + auth[/* password */1]);
-  console.log("quick test: " + _str);
   return $$await(Axios$1.post(base + "/ipfs", _str, octetConfig(auth)));
 }
 
@@ -97,6 +93,9 @@ function create$1(base, auth) {
           /* content */(function (param) {
               return content(base, param);
             }),
+          /* cids */(function (param) {
+              return cids(base, auth, param);
+            }),
           /* add */(function (param) {
               return add(base, auth, param);
             }),
@@ -127,7 +126,7 @@ exports.ipfsURL = ipfsURL;
 exports.cidsURL = cidsURL;
 exports.url = url;
 exports.content = content;
-exports.list = list;
+exports.cids = cids;
 exports.add = add;
 exports.addStr = addStr;
 exports.pin = pin;

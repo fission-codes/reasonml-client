@@ -26,6 +26,7 @@
   "jest": {
     "setupFiles": [
       "dotenv/config"
-    ]
+    ],
+    "testEnvironment": "node"
   }
 }

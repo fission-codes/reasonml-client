@@ -37,7 +37,7 @@ let content = (base, cid) =>
   -> await;
 
 [@gentype]
-let list = (base, auth) =>
+let cids = (base, auth, _str) =>
   cidsURL(base)
   -> Axios.getc(blankConfig(auth))
   -> await;
@@ -50,10 +50,6 @@ let add = (base, auth, content) =>
 
 [@gentype]
 let addStr = (base, auth, _str) => {
-  Js.Console.log("quick test: " ++ base);
-  Js.Console.log("quick test: " ++ auth.username);
-  Js.Console.log("quick test: " ++ auth.password);
-  Js.Console.log("quick test: " ++ _str);
   ipfsURL(base)
   -> Axios.postDatac([%bs.raw {|_str|}], octetConfig(auth))
   -> await;
@@ -95,6 +91,7 @@ module User {
     base:    string,
     url:     cid => string,
     content: cid => Js.Promise.t(string),
+    cids:    string => Js.Promise.t(list(string)),
     add:     Js.t('content) => Js.Promise.t(string),
     addStr:  cid => Js.Promise.t(string),
     pin:     cid => Js.Promise.t(string),
@@ -105,6 +102,7 @@ module User {
     base,
     url: url(base),
     content: content(base),
+    cids: cids(base, auth),
     add: add(base, auth),
     addStr: addStr(base, auth),
     pin: pin(base, auth),
