@@ -6,9 +6,7 @@ var Axios$1 = require("axios");
 
 function $$await(promise) {
   return promise.then((function (response) {
-                  return Promise.resolve(response.data);
-                })).catch((function (prim) {
-                return Promise.resolve(prim);
+                return Promise.resolve(response.data);
               }));
 }
 
@@ -61,7 +59,11 @@ function add(base, auth, content) {
 }
 
 function addStr(base, auth, _str) {
-  return $$await(Axios$1.post(base + "/ipfs", str, octetConfig(auth)));
+  console.log("quick test: " + base);
+  console.log("quick test: " + auth[/* username */0]);
+  console.log("quick test: " + auth[/* password */1]);
+  console.log("quick test: " + _str);
+  return $$await(Axios$1.post(base + "/ipfs", _str, octetConfig(auth)));
 }
 
 function pin(base, auth, cid) {

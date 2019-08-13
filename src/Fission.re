@@ -14,7 +14,7 @@ type auth = {
 let await = promise =>
   promise
   |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
-  |> Js.Promise.catch(Js.Promise.resolve);
+  // |> Js.Promise.catch(err => Js.Promise.resolve(""));
 
 let convAuth = auth => { "username": auth.username, "password": auth.password, };
 let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
@@ -49,10 +49,15 @@ let add = (base, auth, content) =>
   -> await;
 
 [@gentype]
-let addStr = (base, auth, _str) =>
+let addStr = (base, auth, _str) => {
+  Js.Console.log("quick test: " ++ base);
+  Js.Console.log("quick test: " ++ auth.username);
+  Js.Console.log("quick test: " ++ auth.password);
+  Js.Console.log("quick test: " ++ _str);
   ipfsURL(base)
-  -> Axios.postDatac([%bs.raw {|str|}], octetConfig(auth))
+  -> Axios.postDatac([%bs.raw {|_str|}], octetConfig(auth))
   -> await;
+};
 
 [@gentype]
 let pin = (base, auth, cid) =>
@@ -72,7 +77,7 @@ module Simple {
   type t = {
     base:    string,
     url:     cid => string,
-    content: cid => Js.Promise.t(Js.Promise.error)
+    content: cid => Js.Promise.t(string)
   };
 
   [@gentype]
@@ -89,11 +94,11 @@ module User {
   type t('content) = {
     base:    string,
     url:     cid => string,
-    content: cid => Js.Promise.t(Js.Promise.error),
-    add:     Js.t('content) => Js.Promise.t(Js.Promise.error),
-    addStr:  cid => Js.Promise.t(Js.Promise.error),
-    pin:     cid => Js.Promise.t(Js.Promise.error),
-    remove:  cid => Js.Promise.t(Js.Promise.error),
+    content: cid => Js.Promise.t(string),
+    add:     Js.t('content) => Js.Promise.t(string),
+    addStr:  cid => Js.Promise.t(string),
+    pin:     cid => Js.Promise.t(string),
+    remove:  cid => Js.Promise.t(string),
   };
 
   let create = (base, auth) => {
