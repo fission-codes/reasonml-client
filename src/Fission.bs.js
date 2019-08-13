@@ -50,7 +50,7 @@ function content(base, cid) {
   return $$await(Axios$1.get(url(base, cid)));
 }
 
-function cids(base, auth, _str) {
+function cids(base, auth, param) {
   return $$await(Axios$1.get(base + "/ipfs/cids", blankConfig(auth)));
 }
 

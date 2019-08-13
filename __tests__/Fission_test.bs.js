@@ -56,7 +56,7 @@ Jest.describe("Fission.User", (function (param) {
                 Jest.beforeAllPromise(undefined, (function (param) {
                         return Curry._1(fission[/* addStr */5], str).then((function (value) {
                                         cid[0] = value;
-                                        return Curry._1(fission[/* cids */3], "");
+                                        return Curry._1(fission[/* cids */3], /* () */0);
                                       })).then((function (cids) {
                                       cidList[0] = $$Array.to_list(cids);
                                       return Promise.resolve(/* () */0);
@@ -85,7 +85,7 @@ Jest.describe("Fission.User", (function (param) {
                       }));
                 return Jest.testPromise("removes strings from IPFS", undefined, (function (param) {
                               return Curry._1(fission[/* remove */7], cid[0]).then((function (_value) {
-                                              return Curry._1(fission[/* cids */3], "");
+                                              return Curry._1(fission[/* cids */3], /* () */0);
                                             })).then((function (cids) {
                                             return Promise.resolve(Jest.Expect[/* toEqual */12](false, Jest.Expect[/* expect */0](List.mem(cid[0], $$Array.to_list(cids)))));
                                           }));
@@ -103,7 +103,7 @@ Jest.describe("Fission.User", (function (param) {
                       Jest.beforeAllPromise(undefined, (function (param) {
                               return Curry._1(fission[/* add */4], json).then((function (value) {
                                               cid[0] = value;
-                                              return Curry._1(fission[/* cids */3], "");
+                                              return Curry._1(fission[/* cids */3], /* () */0);
                                             })).then((function (cids) {
                                             cidList[0] = $$Array.to_list(cids);
                                             return Promise.resolve(/* () */0);
@@ -134,7 +134,7 @@ Jest.describe("Fission.User", (function (param) {
                             }));
                       return Jest.testPromise("removes json from IPFS", undefined, (function (param) {
                                     return Curry._1(fission[/* remove */7], cid[0]).then((function (_value) {
-                                                    return Curry._1(fission[/* cids */3], "");
+                                                    return Curry._1(fission[/* cids */3], /* () */0);
                                                   })).then((function (cids) {
                                                   return Promise.resolve(Jest.Expect[/* toEqual */12](false, Jest.Expect[/* expect */0](List.mem(cid[0], $$Array.to_list(cids)))));
                                                 }));

@@ -36,7 +36,7 @@ let content = (base, cid) =>
   -> await;
 
 [@gentype]
-let cids = (base, auth, _str) =>
+let cids = (base, auth, ()) =>
   cidsURL(base)
   -> Axios.getc(blankConfig(auth))
   -> await;
@@ -90,7 +90,7 @@ module User {
     base:    string,
     url:     cid => string,
     content: cid => Js.Promise.t('ipfs),
-    cids:    string => Js.Promise.t(array(string)),
+    cids:    unit => Js.Promise.t(array(string)),
     add:     Js.t('content) => Js.Promise.t(string),
     addStr:  cid => Js.Promise.t(string),
     pin:     cid => Js.Promise.t(string),

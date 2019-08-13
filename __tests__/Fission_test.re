@@ -49,7 +49,7 @@ describe("Fission.User", () => {
       fission.addStr(str)
       |> Js.Promise.then_(value => {
         cid := value;
-        fission.cids("");
+        fission.cids();
       })
       |> Js.Promise.then_(cids => {
         cidList := Array.to_list(cids);
@@ -85,13 +85,12 @@ describe("Fission.User", () => {
       test("is the same string as the original", () => {
         expect(ipfsContent^) |> toEqual(str);
       })
-
     })
 
     testPromise("removes strings from IPFS", () => {
       fission.remove(cid^)
       |> Js.Promise.then_(_value => {
-        fission.cids("");
+        fission.cids();
       })
       |> Js.Promise.then_(cids => {
         Array.to_list(cids)
@@ -112,7 +111,7 @@ describe("Fission.User", () => {
       fission.add(json)
       |> Js.Promise.then_(value => {
         cid := value;
-        fission.cids("");
+        fission.cids()
       })
       |> Js.Promise.then_(cids => {
         cidList := Array.to_list(cids)
@@ -148,13 +147,12 @@ describe("Fission.User", () => {
       test("is the same string as the original", () => {
         expect(ipfsContent^) |> toEqual(json)
       })
-
     })
 
     testPromise("removes json from IPFS", () => {
       fission.remove(cid^)
       |> Js.Promise.then_(_value => {
-        fission.cids("")
+        fission.cids()
       })
       |> Js.Promise.then_(cids => {
         Array.to_list(cids)
@@ -165,5 +163,4 @@ describe("Fission.User", () => {
       })
     })
   })
-
 })
