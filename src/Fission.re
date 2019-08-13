@@ -14,7 +14,6 @@ type auth = {
 let await = promise =>
   promise
   |> Js.Promise.then_(response => Js.Promise.resolve(response##data))
-  // |> Js.Promise.catch(err => Js.Promise.resolve(""));
 
 let convAuth = auth => { "username": auth.username, "password": auth.password, };
 let octetHeader = Axios.Headers.fromObj({"content-type": "application/octet-stream"});
@@ -91,7 +90,7 @@ module User {
     base:    string,
     url:     cid => string,
     content: cid => Js.Promise.t(string),
-    cids:    string => Js.Promise.t(list(string)),
+    cids:    string => Js.Promise.t(array(string)),
     add:     Js.t('content) => Js.Promise.t(string),
     addStr:  cid => Js.Promise.t(string),
     pin:     cid => Js.Promise.t(string),

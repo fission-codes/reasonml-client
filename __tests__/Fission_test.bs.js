@@ -2,6 +2,9 @@
 'use strict';
 
 var Jest = require("@glennsl/bs-jest/src/jest.js");
+var List = require("bs-platform/lib/js/list.js");
+var $$Array = require("bs-platform/lib/js/array.js");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Fission$ReasonmlClient = require("../src/Fission.bs.js");
 
 function randomString(param) {
@@ -33,23 +36,53 @@ Jest.describe("Fission.Simple", (function (param) {
       }));
 
 Jest.describe("Fission.User", (function (param) {
+        var fission = Fission$ReasonmlClient.User[/* create */0](process.env.INTERPLANETARY_FISSION_URL, /* record */[
+              /* username */process.env.INTERPLANETARY_FISSION_USERNAME,
+              /* password */process.env.INTERPLANETARY_FISSION_PASSWORD
+            ]);
         return Jest.describe("adds strings to IPFS", (function (param) {
+                      var str = "10osidfjpaeoi4j";
                       var cid = /* record */[/* contents */""];
-                      var ipfsContent = /* record */[/* contents */""];
+                      var cidList = /* record */[/* contents : :: */[
+                          "",
+                          /* [] */0
+                        ]];
                       Jest.beforeAllPromise(undefined, (function (param) {
-                              return Fission$ReasonmlClient.addStr(process.env.INTERPLANETARY_FISSION_URL, /* record */[
-                                              /* username */process.env.INTERPLANETARY_FISSION_USERNAME,
-                                              /* password */process.env.INTERPLANETARY_FISSION_PASSWORD
-                                            ], "10osidfjpaeoi4j").then((function (value) {
+                              return Curry._1(fission[/* addStr */5], str).then((function (value) {
                                               cid[0] = value;
-                                              return Fission$ReasonmlClient.content(process.env.INTERPLANETARY_FISSION_URL, value);
-                                            })).then((function (value) {
-                                            ipfsContent[0] = value;
-                                            return Promise.resolve(value);
+                                              return Curry._1(fission[/* cids */3], "");
+                                            })).then((function (cids) {
+                                            cidList[0] = $$Array.to_list(cids);
+                                            return Promise.resolve(cids);
                                           }));
                             }));
-                      return Jest.test("filler", (function (param) {
-                                    return Jest.Expect[/* toEqual */12]("1234", Jest.Expect[/* expect */0]("1234"));
+                      Jest.test("uploads strings to IPFS", (function (param) {
+                              var exists = List.mem(cid[0], cidList[0]);
+                              return Jest.Expect[/* toEqual */12](true, Jest.Expect[/* expect */0](exists));
+                            }));
+                      Jest.testPromise("pins strings to IPFS", undefined, (function (param) {
+                              return Curry._1(fission[/* pin */6], cid[0]).then((function (_value) {
+                                            return Promise.resolve(Jest.Expect[/* toEqual */12](true, Jest.Expect[/* expect */0](true)));
+                                          }));
+                            }));
+                      Jest.describe("string retrieval", (function (param) {
+                              var ipfsContent = /* record */[/* contents */""];
+                              Jest.beforeAllPromise(undefined, (function (param) {
+                                      return Curry._1(fission[/* content */2], cid[0]).then((function (value) {
+                                                    ipfsContent[0] = value;
+                                                    return Promise.resolve(/* () */0);
+                                                  }));
+                                    }));
+                              return Jest.test("is the same string as the original", (function (param) {
+                                            return Jest.Expect[/* toEqual */12](str, Jest.Expect[/* expect */0](ipfsContent[0]));
+                                          }));
+                            }));
+                      return Jest.testPromise("removes strings from IPFS", undefined, (function (param) {
+                                    return Curry._1(fission[/* remove */7], cid[0]).then((function (_value) {
+                                                    return Curry._1(fission[/* cids */3], "");
+                                                  })).then((function (cids) {
+                                                  return Promise.resolve(Jest.Expect[/* toEqual */12](false, Jest.Expect[/* expect */0](List.mem(cid[0], $$Array.to_list(cids)))));
+                                                }));
                                   }));
                     }));
       }));
