@@ -86,10 +86,10 @@ module Simple {
 let newSimple = Simple.create;
 
 module User {
-  type t('content) = {
+  type t('ipfs, 'content) = {
     base:    string,
     url:     cid => string,
-    content: cid => Js.Promise.t(string),
+    content: cid => Js.Promise.t('ipfs),
     cids:    string => Js.Promise.t(array(string)),
     add:     Js.t('content) => Js.Promise.t(string),
     addStr:  cid => Js.Promise.t(string),
