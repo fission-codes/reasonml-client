@@ -20,7 +20,8 @@
     "bs-axios"
   ],
   "bs-dev-dependencies": [
-    "@glennsl/bs-jest"
+    "@glennsl/bs-jest",
+    "bs-node"
   ],
   "warnings": {
     "error" : "+101"

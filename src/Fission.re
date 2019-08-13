@@ -48,9 +48,16 @@ let add = (base, auth, content) =>
   -> await;
 
 [@gentype]
-let addStr = (base, auth, _str) => {
+let addString = (base, auth, _str: string) => {
   ipfsURL(base)
   -> Axios.postDatac([%bs.raw {|_str|}], octetConfig(auth))
+  -> await;
+};
+
+[@gentype]
+let addStream = (base, auth, _stream: Stream.t(char)) => {
+  ipfsURL(base)
+  -> Axios.postDatac([%bs.raw {|_stream|}], octetConfig(auth))
   -> await;
 };
 
@@ -92,7 +99,8 @@ module User {
     content: cid => Js.Promise.t('ipfs),
     cids:    unit => Js.Promise.t(array(string)),
     add:     Js.t('content) => Js.Promise.t(string),
-    addStr:  cid => Js.Promise.t(string),
+    addString:  cid => Js.Promise.t(string),
+    addStream:  Stream.t(char) => Js.Promise.t(string),
     pin:     cid => Js.Promise.t(string),
     remove:  cid => Js.Promise.t(string),
   };
@@ -103,7 +111,8 @@ module User {
     content: content(base),
     cids: cids(base, auth),
     add: add(base, auth),
-    addStr: addStr(base, auth),
+    addString: addString(base, auth),
+    addStream: addStream(base, auth),
     pin: pin(base, auth),
     remove: remove(base, auth),
   }

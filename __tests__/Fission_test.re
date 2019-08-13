@@ -3,6 +3,7 @@ open Jest;
 [@bs.val] external baseURL: string = "process.env.INTERPLANETARY_FISSION_URL";
 [@bs.val] external username: string = "process.env.INTERPLANETARY_FISSION_USERNAME";
 [@bs.val] external password: string = "process.env.INTERPLANETARY_FISSION_PASSWORD";
+[@bs.val] external dirname : string = "__dirname";
 
 let randomString = () => "10osidfjpaeoi4j";
 let randomJSON = () => {"test": 1234}
@@ -14,7 +15,7 @@ describe("Fission.Simple", () => {
   let ipfsContent = ref("");
 
   beforeAllPromise(() => {
-    Fission.addStr(baseURL, {username, password}, str)
+    Fission.addString(baseURL, {username, password}, str)
     |> Js.Promise.then_(value => {
       cid := value;
       Fission.content(baseURL, value);
@@ -46,7 +47,7 @@ describe("Fission.User", () => {
     let cidList = ref([""]);
 
     beforeAllPromise(() => {
-      fission.addStr(str)
+      fission.addString(str)
       |> Js.Promise.then_(value => {
         cid := value;
         fission.cids();
@@ -153,6 +154,76 @@ describe("Fission.User", () => {
       fission.remove(cid^)
       |> Js.Promise.then_(_value => {
         fission.cids()
+      })
+      |> Js.Promise.then_(cids => {
+        Array.to_list(cids)
+        |> List.mem(cid^)
+        |> expect
+        |> toEqual(false)
+        |> Js.Promise.resolve
+      })
+    })
+  })
+
+  describe("adds files to IPFS", () => {
+    let filename = "test_img.png";
+    let filepath = dirname ++ "/" ++ filename;
+    let fileContent = Node.Fs.readFileAsUtf8Sync(filepath)
+    let cid = ref("");
+    let cidList = ref([""]);
+
+    beforeAllPromise(() => {
+      // Compiles fine, but throws runtime error `caml_ml_open_descriptor_in not polyfilled by BuckleScript yet`
+      // let fileStream = Pervasives.open_in_bin(filepath)
+      // -> Stream.of_channel
+      let fileStream = [%bs.raw {|
+        require('fs').createReadStream(filepath)
+      |}]
+      fission.addStream(fileStream)
+      |> Js.Promise.then_(value => {
+        cid := value;
+        fission.cids();
+      })
+      |> Js.Promise.then_(cids => {
+        cidList := Array.to_list(cids);
+        Js.Promise.resolve();
+      })
+    })
+
+    test("uploads files to IPFS", () => {
+      let exists = List.mem(cid^, cidList^);
+      expect(exists) |> toEqual(true);
+    })
+
+    testPromise("pins files to IPFS", () => {
+      fission.pin(cid^)
+      |> Js.Promise.then_(_value => {
+        expect(true)
+        |> toEqual(true)
+        |> Js.Promise.resolve
+      })
+    })
+
+    describe("file retrieval", () => {
+      let ipfsContent = ref("");
+
+      beforeAllPromise(() => {
+        fission.content(cid^)
+        |> Js.Promise.then_(value => {
+          ipfsContent := value
+          Js.Promise.resolve()
+        })
+      })
+
+      test("is the same file as the original", () => {
+        expect(ipfsContent^) |> toEqual(fileContent);
+      })
+    })
+
+    testPromise("removes files from IPFS", () => {
+      fission.remove(cid^)
+      |> Js.Promise.then_(_value => {
+        fission.cids();
       })
       |> Js.Promise.then_(cids => {
         Array.to_list(cids)

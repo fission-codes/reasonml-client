@@ -28,8 +28,13 @@ export const add = function (Arg1, Arg2, Arg3) {
   return result
 };
 
-export const addStr = function (Arg1, Arg2, Arg3) {
-  const result = Curry._3(FissionBS.addStr, Arg1, [Arg2.username, Arg2.password], Arg3);
+export const addString = function (Arg1, Arg2, Arg3) {
+  const result = Curry._3(FissionBS.addString, Arg1, [Arg2.username, Arg2.password], Arg3);
+  return result
+};
+
+export const addStream = function (Arg1, Arg2, Arg3) {
+  const result = Curry._3(FissionBS.addStream, Arg1, [Arg2.username, Arg2.password], Arg3);
   return result
 };
 
@@ -55,5 +60,5 @@ export const newSimple = function (Arg1) {
 
 export const newUser = function (Arg1, Arg2) {
   const result = Curry._2(FissionBS.newUser, Arg1, [Arg2.username, Arg2.password]);
-  return {base:result[0], url:result[1], content:result[2], cids:result[3], add:result[4], addStr:result[5], pin:result[6], remove:result[7]}
+  return {base:result[0], url:result[1], content:result[2], cids:result[3], add:result[4], addString:result[5], addStream:result[6], pin:result[7], remove:result[8]}
 };

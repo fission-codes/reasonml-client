@@ -58,8 +58,12 @@ function add(base, auth, content) {
   return $$await(Axios$1.post(base + "/ipfs", content, octetConfig(auth)));
 }
 
-function addStr(base, auth, _str) {
+function addString(base, auth, _str) {
   return $$await(Axios$1.post(base + "/ipfs", _str, octetConfig(auth)));
+}
+
+function addStream(base, auth, _stream) {
+  return $$await(Axios$1.post(base + "/ipfs", _stream, octetConfig(auth)));
 }
 
 function pin(base, auth, cid) {
@@ -99,8 +103,11 @@ function create$1(base, auth) {
           /* add */(function (param) {
               return add(base, auth, param);
             }),
-          /* addStr */(function (param) {
-              return addStr(base, auth, param);
+          /* addString */(function (param) {
+              return addString(base, auth, param);
+            }),
+          /* addStream */(function (param) {
+              return addStream(base, auth, param);
             }),
           /* pin */(function (param) {
               return pin(base, auth, param);
@@ -128,7 +135,8 @@ exports.url = url;
 exports.content = content;
 exports.cids = cids;
 exports.add = add;
-exports.addStr = addStr;
+exports.addString = addString;
+exports.addStream = addStream;
 exports.pin = pin;
 exports.remove = remove;
 exports.Simple = Simple;

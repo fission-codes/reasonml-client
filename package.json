@@ -15,6 +15,7 @@
   "devDependencies": {
     "@glennsl/bs-jest": "^0.4.9",
     "bs-axios": "0.0.42",
+    "bs-node": "github:reasonml-community/bs-node",
     "bs-platform": "^5.0.6",
     "dotenv": "^8.0.0",
     "gentype": "^2.34.0",
