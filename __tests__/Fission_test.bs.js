@@ -6,6 +6,8 @@ var Jest = require("@glennsl/bs-jest/src/jest.js");
 var List = require("bs-platform/lib/js/list.js");
 var $$Array = require("bs-platform/lib/js/array.js");
 var Curry = require("bs-platform/lib/js/curry.js");
+var Js_dict = require("bs-platform/lib/js/js_dict.js");
+var Mocks$ReasonmlClient = require("../src/Mocks.bs.js");
 var Fission$ReasonmlClient = require("../src/Fission.bs.js");
 
 function randomString(param) {
@@ -13,10 +15,16 @@ function randomString(param) {
 }
 
 function randomJSON(param) {
-  return {
-          test: 1234
-        };
+  return Js_dict.fromList(/* :: */[
+              /* tuple */[
+                "10osidfjpaeoi4j",
+                "10osidfjpaeoi4j"
+              ],
+              /* [] */0
+            ]);
 }
+
+var FissionMock = Fission$ReasonmlClient.FissionInject(Mocks$ReasonmlClient.AxiosMock);
 
 Jest.describe("Fission.Simple", (function (param) {
         var str = "10osidfjpaeoi4j";
@@ -93,9 +101,7 @@ Jest.describe("Fission.User", (function (param) {
                             }));
               }));
         Jest.describe("adds JSON Objects to IPFS", (function (param) {
-                var json = {
-                  test: 1234
-                };
+                var json = randomJSON(/* () */0);
                 var cid = /* record */[/* contents */""];
                 var cidList = /* record */[/* contents : :: */[
                     "",
@@ -120,9 +126,7 @@ Jest.describe("Fission.User", (function (param) {
                                     }));
                       }));
                 Jest.describe("string retrieval", (function (param) {
-                        var ipfsContent = /* record */[/* contents */{
-                            test: 0
-                          }];
+                        var ipfsContent = /* record */[/* contents */{ }];
                         Jest.beforeAllPromise(undefined, (function (param) {
                                 return Curry._1(fission[/* content */2], cid[0]).then((function (value) {
                                               ipfsContent[0] = value;
@@ -194,4 +198,5 @@ Jest.describe("Fission.User", (function (param) {
 
 exports.randomString = randomString;
 exports.randomJSON = randomJSON;
-/*  Not a pure module */
+exports.FissionMock = FissionMock;
+/* FissionMock Not a pure module */

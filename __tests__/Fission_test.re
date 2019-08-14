@@ -6,7 +6,11 @@ open Jest;
 [@bs.val] external dirname : string = "__dirname";
 
 let randomString = () => "10osidfjpaeoi4j";
-let randomJSON = () => {"test": 1234}
+let randomJSON = () => Js.Dict.fromList([
+  (randomString(), randomString())
+])
+
+module FissionMock = Fission.FissionInject(Mocks.AxiosMock)
 
 describe("Fission.Simple", () => {
   open Expect;
@@ -105,6 +109,7 @@ describe("Fission.User", () => {
 
   describe("adds JSON Objects to IPFS", () => {
     let json = randomJSON();
+    // let json = {"test": 123498 7}
     let cid = ref("");
     let cidList = ref([""]);
 
@@ -135,7 +140,7 @@ describe("Fission.User", () => {
     })
 
     describe("string retrieval", () => {
-      let ipfsContent = ref({"test": 0})
+      let ipfsContent = ref(Js.Dict.empty())
 
       beforeAllPromise(() => {
         fission.content(cid^)
