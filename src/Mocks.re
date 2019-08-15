@@ -27,11 +27,16 @@ module type Axios_type {
   |];
 
 // helpers
-  let isAuthed = _cfg => [%bs.raw {|
-    _cfg && _cfg.auth &&
-    _cfg.auth.username === username &&
-    _cfg.auth.password === password
-  |}];
+let isAuthed = _cfg => [%bs.raw {|
+  _cfg && _cfg.auth &&
+  _cfg.auth.username === username &&
+  _cfg.auth.password === password
+|}];
+
+let isOctetReq = _cfg => [%bs.raw {|
+  _cfg && _cfg.headers &&
+  _cfg.headers['content-type'] === 'application/octet-stream'
+|}]
   
 let failureResp = () => {
   Js.Promise.resolve({
@@ -79,7 +84,7 @@ module Axios_mock {
 
   let postDatac = (url, _data, cfg) => {
     let correctURL = url === (baseURL ++ "/ipfs")
-    if(correctURL && isAuthed(cfg)){
+    if(correctURL && isAuthed(cfg) && isOctetReq(cfg)){
       dataResp(testCID)
     }else{
       failureResp()

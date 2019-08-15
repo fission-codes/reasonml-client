@@ -34,10 +34,17 @@ var cidList = /* array */[
 
 function isAuthed(_cfg) {
   return (
-    _cfg && _cfg.auth &&
-    _cfg.auth.username === username &&
-    _cfg.auth.password === password
-  );
+  _cfg && _cfg.auth &&
+  _cfg.auth.username === username &&
+  _cfg.auth.password === password
+);
+}
+
+function isOctetReq(_cfg) {
+  return (
+  _cfg && _cfg.headers &&
+  _cfg.headers['content-type'] === 'application/octet-stream'
+);
 }
 
 function failureResp(param) {
@@ -88,7 +95,7 @@ function getc(url, cfg) {
 
 function postDatac(url, _data, cfg) {
   var correctURL = url === "https://hostless.dev/ipfs";
-  if (correctURL && isAuthed(cfg)) {
+  if (correctURL && isAuthed(cfg) && isOctetReq(cfg)) {
     return dataResp(testCID);
   } else {
     return failureResp(/* () */0);
@@ -151,6 +158,7 @@ exports.jsonCID = jsonCID;
 exports.testCID = testCID;
 exports.cidList = cidList;
 exports.isAuthed = isAuthed;
+exports.isOctetReq = isOctetReq;
 exports.failureResp = failureResp;
 exports.dataResp = dataResp;
 exports.Axios_mock = Axios_mock;
