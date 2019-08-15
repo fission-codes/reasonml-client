@@ -5,7 +5,7 @@ var Axios = require("bs-axios/src/axios.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Axios$1 = require("axios");
 
-function FissionInject(AxiosImpl) {
+function FissionInject(Axios_impl) {
   var $$await = function (promise) {
     return promise.then((function (response) {
                   return Promise.resolve(response.data);
@@ -41,29 +41,25 @@ function FissionInject(AxiosImpl) {
     return domain + "/ipfs/" + cid;
   };
   var content = function (base, cid) {
-    return $$await(Curry._1(AxiosImpl[/* get */0], url(base, cid)));
+    return $$await(Curry._1(Axios_impl[/* get */0], url(base, cid)));
   };
   var cids = function (base, auth, param) {
-    return $$await(Curry._2(AxiosImpl[/* getc */1], base + "/ipfs/cids", blankConfig(auth)));
+    return $$await(Curry._2(Axios_impl[/* getc */1], base + "/ipfs/cids", blankConfig(auth)));
   };
   var add = function (base, auth, _content) {
-    var url = base + "/ipfs";
-    return Curry._3(AxiosImpl[/* postDatac */2], url, _content, octetConfig(auth)).then((function (resp) {
-                  console.log(resp);
-                  return Promise.resolve(resp.data);
-                }));
+    return $$await(Curry._3(Axios_impl[/* postDatac */2], base + "/ipfs", _content, octetConfig(auth)));
   };
   var addString = function (base, auth, _str) {
-    return $$await(Curry._3(AxiosImpl[/* postDatac */2], base + "/ipfs", _str, octetConfig(auth)));
+    return $$await(Curry._3(Axios_impl[/* postDatac */2], base + "/ipfs", _str, octetConfig(auth)));
   };
   var addStream = function (base, auth, _stream) {
-    return $$await(Curry._3(AxiosImpl[/* postDatac */2], base + "/ipfs", _stream, octetConfig(auth)));
+    return $$await(Curry._3(Axios_impl[/* postDatac */2], base + "/ipfs", _stream, octetConfig(auth)));
   };
   var pin = function (base, auth, cid) {
-    return $$await(Curry._3(AxiosImpl[/* putDatac */3], url(base, cid), { }, blankConfig(auth)));
+    return $$await(Curry._3(Axios_impl[/* putDatac */3], url(base, cid), { }, blankConfig(auth)));
   };
   var remove = function (base, auth, cid) {
-    return $$await(Curry._2(AxiosImpl[/* deletec */4], url(base, cid), blankConfig(auth)));
+    return $$await(Curry._2(Axios_impl[/* deletec */4], url(base, cid), blankConfig(auth)));
   };
   var create = function (base) {
     return /* record */[
@@ -130,23 +126,23 @@ function FissionInject(AxiosImpl) {
         ];
 }
 
-function AxiosImpl_000(prim) {
+function Axios_impl_000(prim) {
   return Axios$1.get(prim);
 }
 
-function AxiosImpl_001(prim, prim$1) {
+function Axios_impl_001(prim, prim$1) {
   return Axios$1.get(prim, prim$1);
 }
 
-function AxiosImpl_002(prim, prim$1, prim$2) {
+function Axios_impl_002(prim, prim$1, prim$2) {
   return Axios$1.post(prim, prim$1, prim$2);
 }
 
-function AxiosImpl_003(prim, prim$1, prim$2) {
+function Axios_impl_003(prim, prim$1, prim$2) {
   return Axios$1.put(prim, prim$1, prim$2);
 }
 
-function AxiosImpl_004(prim, prim$1) {
+function Axios_impl_004(prim, prim$1) {
   return Axios$1.delete(prim, prim$1);
 }
 
@@ -193,35 +189,31 @@ function url(domain, cid) {
 }
 
 function content(base, cid) {
-  return $$await(Curry._1(AxiosImpl_000, url(base, cid)));
+  return $$await(Curry._1(Axios_impl_000, url(base, cid)));
 }
 
 function cids(base, auth, param) {
-  return $$await(Curry._2(AxiosImpl_001, base + "/ipfs/cids", blankConfig(auth)));
+  return $$await(Curry._2(Axios_impl_001, base + "/ipfs/cids", blankConfig(auth)));
 }
 
 function add(base, auth, _content) {
-  var url = base + "/ipfs";
-  return Curry._3(AxiosImpl_002, url, _content, octetConfig(auth)).then((function (resp) {
-                console.log(resp);
-                return Promise.resolve(resp.data);
-              }));
+  return $$await(Curry._3(Axios_impl_002, base + "/ipfs", _content, octetConfig(auth)));
 }
 
 function addString(base, auth, _str) {
-  return $$await(Curry._3(AxiosImpl_002, base + "/ipfs", _str, octetConfig(auth)));
+  return $$await(Curry._3(Axios_impl_002, base + "/ipfs", _str, octetConfig(auth)));
 }
 
 function addStream(base, auth, _stream) {
-  return $$await(Curry._3(AxiosImpl_002, base + "/ipfs", _stream, octetConfig(auth)));
+  return $$await(Curry._3(Axios_impl_002, base + "/ipfs", _stream, octetConfig(auth)));
 }
 
 function pin(base, auth, cid) {
-  return $$await(Curry._3(AxiosImpl_003, url(base, cid), { }, blankConfig(auth)));
+  return $$await(Curry._3(Axios_impl_003, url(base, cid), { }, blankConfig(auth)));
 }
 
 function remove(base, auth, cid) {
-  return $$await(Curry._2(AxiosImpl_004, url(base, cid), blankConfig(auth)));
+  return $$await(Curry._2(Axios_impl_004, url(base, cid), blankConfig(auth)));
 }
 
 function create(base) {

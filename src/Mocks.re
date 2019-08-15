@@ -1,4 +1,4 @@
-module type AxiosType {
+module type Axios_type {
   open Axios_types;
   let get: string => Js.Promise.t(response('a, 'b));
   let getc: (string, config) => Js.Promise.t(response('a, 'b));
@@ -7,54 +7,114 @@ module type AxiosType {
   let deletec: (string, config) => Js.Promise.t(response('a, 'b));
 }
 
-
 // test variables
-let baseURL = "https://hostless.dev"
-let username = "test_username"
-let password = "test_password"
+  let baseURL = "https://hostless.dev";
+  let username = "test_username";
+  let password = "test_password";
 
-let strContent = "string content"
-// const jsonContent = {
-//   string: 'testing',
-//   array: [1, -1, 1000, 0]
-// } as JSONObject
-let testCID = "QmYFkqxQM63pcM5RzAQ4Fs9gei8YgHWu6DPWutfUs8Dvze"
-let testCIDs = [|
-  "QmYFkqxQM63pcM5RzAQ4Fs9gei8YgHWu6DPWutfUs8Dvze",
-  "QmYp9d8BC2HhDCUVH7JEUZAd6Hbxrc5wBRfUs8TqazJJP9",
-  "QmYwXpFw1QGAWxEnQWFwLuVpdbupaBcEz2DTTRRRsCt9WR"
-|]
+  let strContent = "string content";
+  let strCID = "QmYFkqxQM63pcM5RzAQ4Fs9gei8YgHWu6DPWutfUs8Dvze";
+  let jsonContent = Js.Dict.fromList([
+    ("key1", "val1"),
+    ("key2", "val2")
+  ]);
+  let jsonCID = "QmYwXpFw1QGAWxEnQWFwLuVpdbupaBcEz2DTTRRRsCt9WR";
+  let testCID = "QmYp9d8BC2HhDCUVH7JEUZAd6Hbxrc5wBRfUs8TqazJJP9"
+  let cidList = [|
+    "QmYFkqxQM63pcM5RzAQ4Fs9gei8YgHWu6DPWutfUs8Dvze",
+    "QmYwXpFw1QGAWxEnQWFwLuVpdbupaBcEz2DTTRRRsCt9WR",
+    "QmYp9d8BC2HhDCUVH7JEUZAd6Hbxrc5wBRfUs8TqazJJP9"
+  |];
 
-module AxiosMock {
-  // open Axios_types;
+// helpers
+  let isAuthed = _cfg => [%bs.raw {|
+    _cfg && _cfg.auth &&
+    _cfg.auth.username === username &&
+    _cfg.auth.password === password
+  |}];
+  
+let failureResp = () => {
+  Js.Promise.resolve({
+    "data": [%bs.raw{|{}|}],
+    "status": 500,
+    "statusText": "Something went wrong",
+    "config": Axios.makeConfig(),
+    "headers": [%bs.raw {|{"content-type": "application/octet-stream"}|}]
+  })
+}
 
-  let get = Axios.get
-  // let get = _cid => {
-  //   let response = {
-  //     "data": strContent,
-  //     "status": 200,
-  //     "statusText": "OK",
-  //     "config": Axios.makeConfig(),
-  //     "headers": Axios.Headers.fromObj({"content-type": "application/octet-stream"})
-  //   }
-  //   Js.Promise.resolve(response)
-  // }
+let dataResp = _data => {
+  Js.Promise.resolve({
+    "data": [%bs.raw {|_data|}],
+    "status": 200,
+    "statusText": "OK",
+    "config": Axios.makeConfig(),
+    "headers": [%bs.raw {|{"content-type": "application/octet-stream"}|}]
+  })
+}
 
-  let getc = Axios.getc
+module Axios_mock {
+  let get = url => {
+    let correctURL = Js.String.startsWith(baseURL ++ "/ipfs/", url)
+    if(!correctURL){
+      failureResp()
+    }else{
+      let cid = Js.String.split(baseURL ++ "/ipfs/", url)[1]
+      switch (cid) {
+        | "QmYFkqxQM63pcM5RzAQ4Fs9gei8YgHWu6DPWutfUs8Dvze" => dataResp(strContent)
+        | "QmYwXpFw1QGAWxEnQWFwLuVpdbupaBcEz2DTTRRRsCt9WR" => dataResp(jsonContent)
+        | _ => failureResp()
+      }
+    }
+  }
 
-  let postDatac = Axios.postDatac
-  // let postDatac = (_url: string, _data: Js.t('a), _config: Axios_types.config) => {
-  //   let response: Axios_types.response('a, 'b) = {
-  //     "data": testCID,
-  //     "status": 200,
-  //     "statusText": "OK",
-  //     "headers": Axios.Headers.fromObj({{"content-type": "text/plain; charset=utf-8"}}),
-  //     "config": Axios.makeConfig()
-  //   }
-  //   Js.Promise.resolve(response)
-  // }
+  let getc = (url, cfg) => {
+    let correctURL = url === (baseURL ++ "/ipfs/cids");
+    if(correctURL && isAuthed(cfg)){
+      dataResp(cidList)
+    }else{
+      failureResp()
+    }
+  }
 
-  let putDatac = Axios.putDatac
-  let deletec = Axios.deletec
+  let postDatac = (url, _data, cfg) => {
+    let correctURL = url === (baseURL ++ "/ipfs")
+    if(correctURL && isAuthed(cfg)){
+      dataResp(testCID)
+    }else{
+      failureResp()
+    }
+  }
 
+  let putDatac = (url, _data, cfg) => {
+    let correctURL = url === (baseURL ++ "/ipfs")
+    if(!correctURL || !isAuthed(cfg)){
+      failureResp()
+    }else{
+      let cid = Js.String.split(baseURL ++ "/ipfs/", url)[1];
+      let validCID = Array.to_list(cidList)
+      |> List.mem(cid)
+      if(validCID){
+        dataResp(Js.Obj.empty())
+      } else{
+        failureResp()
+      }
+    }
+  }
+
+  let deletec = (url, cfg) => {
+    let correctURL = url === (baseURL ++ "/ipfs")
+    if(!correctURL || !isAuthed(cfg)){
+      failureResp()
+    }else{
+      let cid = Js.String.split(baseURL ++ "/ipfs/", url)[1];
+      let validCID = Array.to_list(cidList)
+      |> List.mem(cid)
+      if(validCID){
+        dataResp(Js.Obj.empty())
+      } else{
+        failureResp()
+      }
+    }
+  }
 }

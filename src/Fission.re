@@ -1,4 +1,4 @@
-module FissionInject = (AxiosImpl: Mocks.AxiosType) => {
+module FissionInject = (Axios_impl: Mocks.Axios_type) => {
   // Types
   [@gentype]
   type cid = string;
@@ -30,55 +30,45 @@ module FissionInject = (AxiosImpl: Mocks.AxiosType) => {
   [@gentype]
   let content = (base, cid) =>
     url(base, cid)
-    -> AxiosImpl.get
+    -> Axios_impl.get
     -> await;
 
   [@gentype]
   let cids = (base, auth, ()) =>
     cidsURL(base)
-    -> AxiosImpl.getc(blankConfig(auth))
+    -> Axios_impl.getc(blankConfig(auth))
     -> await;
 
   [@gentype]
-  let add = (base, auth, _content) => {
-    let url = ipfsURL(base)
-    AxiosImpl.postDatac(url, [%bs.raw {|_content|}], octetConfig(auth))
-    |> Js.Promise.then_(resp => {
-      Js.Console.log(resp)
-      Js.Promise.resolve(resp##data);
-    });
-  };
-
-  // [@gentype]
-  // let add = (base, auth, _content) =>
-  //   ipfsURL(base)
-  //   -> AxiosImpl.postDatac([%bs.raw {|_content|}], octetConfig(auth))
-  //   -> await;
+  let add = (base, auth, _content) =>
+    ipfsURL(base)
+    -> Axios_impl.postDatac([%bs.raw {|_content|}], octetConfig(auth))
+    -> await;
 
   [@gentype]
   let addString = (base, auth, _str: string) => {
     ipfsURL(base)
-    -> AxiosImpl.postDatac([%bs.raw {|_str|}], octetConfig(auth))
+    -> Axios_impl.postDatac([%bs.raw {|_str|}], octetConfig(auth))
     -> await;
   };
 
   [@gentype]
   let addStream = (base, auth, _stream: Stream.t(char)) => {
     ipfsURL(base)
-    -> AxiosImpl.postDatac([%bs.raw {|_stream|}], octetConfig(auth))
+    -> Axios_impl.postDatac([%bs.raw {|_stream|}], octetConfig(auth))
     -> await;
   };
 
   [@gentype]
   let pin = (base, auth, cid) =>
     url(base, cid)
-    -> AxiosImpl.putDatac(Js.Obj.empty(), blankConfig(auth))
+    -> Axios_impl.putDatac(Js.Obj.empty(), blankConfig(auth))
     -> await;
 
   [@gentype]
   let remove = (base, auth, cid) =>
     url(base, cid)
-    -> AxiosImpl.deletec(blankConfig(auth))
+    -> Axios_impl.deletec(blankConfig(auth))
     -> await;
 
   // Modules

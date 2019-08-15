@@ -1,240 +1,116 @@
 open Jest;
 
-[@bs.val] external baseURL: string = "process.env.INTERPLANETARY_FISSION_URL";
-[@bs.val] external username: string = "process.env.INTERPLANETARY_FISSION_USERNAME";
-[@bs.val] external password: string = "process.env.INTERPLANETARY_FISSION_PASSWORD";
-[@bs.val] external dirname : string = "__dirname";
-
-let randomString = () => "10osidfjpaeoi4j";
-let randomJSON = () => Js.Dict.fromList([
-  (randomString(), randomString())
-])
-
-module FissionMock = Fission.FissionInject(Mocks.AxiosMock)
+module FissionMock = Fission.FissionInject(Mocks.Axios_mock);
 
 describe("Fission.Simple", () => {
   open Expect;
-  let str = randomString();
-  let cid = ref("");
-  let ipfsContent = ref("");
-
-  beforeAllPromise(() => {
-    Fission.addString(baseURL, {username, password}, str)
-    |> Js.Promise.then_(value => {
-      cid := value;
-      Fission.content(baseURL, value);
-    })
-    |> Js.Promise.then_(value => {
-      ipfsContent := value;
-      Js.Promise.resolve(value);
-    })
-  })
-
-  test("same content as the original", () => {
-    expect(ipfsContent^) |> toEqual(str)
-  })
 
   test("gives properly formatted urls for IPFS content", () => {
-    Fission.url(baseURL, cid^)
+    Fission.url(Mocks.baseURL, Mocks.strCID)
     |> expect
-    |> toEqual(baseURL ++ "/ipfs/" ++ cid^)
+    |> toEqual(Mocks.baseURL ++ "/ipfs/" ++ Mocks.strCID)
+  })
+
+  describe("retrieves string content", () => {
+    let ipfsContent = ref("");
+    beforeAllPromise(() => {
+      FissionMock.content(Mocks.baseURL, Mocks.strCID)
+      |> Js.Promise.then_(value => {
+        ipfsContent := value;
+        Js.Promise.resolve(value);
+      })
+    })
+
+    test("same content as the original", () => {
+      expect(ipfsContent^) |> toEqual(Mocks.strContent)
+    })
+  })
+
+  describe("retrieves json content", () => {
+    let ipfsContent = ref(Js.Dict.empty());
+    beforeAllPromise(() => {
+      FissionMock.content(Mocks.baseURL, Mocks.jsonCID)
+      |> Js.Promise.then_(value => {
+        ipfsContent := value;
+        Js.Promise.resolve(value);
+      })
+    })
+
+    test("same content as the original", () => {
+      expect(ipfsContent^) |> toEqual(Mocks.jsonContent)
+    })
   })
 })
 
 describe("Fission.User", () => {
   open Expect;
-  let fission = Fission.User.create(baseURL, {username, password});
+  let fission = FissionMock.User.create(
+    Mocks.baseURL,
+    {username: Mocks.username, password: Mocks.password}
+  );
+
+  describe("retrieves cids associated with user", () => {
+    let cids = ref([||]);
+    beforeAllPromise(() => {
+      fission.cids()
+      |> Js.Promise.then_(value => {
+        cids := value;
+        Js.Promise.resolve(());
+      })
+    })
+
+    test("returns list of cids", () => {
+      expect(cids^) |> toEqual(Mocks.cidList);
+    })
+  })
 
   describe("adds strings to IPFS", () => {
-    let str = randomString();
     let cid = ref("");
-    let cidList = ref([""]);
-
     beforeAllPromise(() => {
-      fission.addString(str)
+      fission.addString(Mocks.strContent)
       |> Js.Promise.then_(value => {
         cid := value;
-        fission.cids();
-      })
-      |> Js.Promise.then_(cids => {
-        cidList := Array.to_list(cids);
-        Js.Promise.resolve();
+        Js.Promise.resolve(());
       })
     })
 
-    test("uploads strings to IPFS", () => {
-      let exists = List.mem(cid^, cidList^);
-      expect(exists) |> toEqual(true);
+    test("returns valid CID", () => {
+      expect(cid^) |> toEqual(Mocks.testCID)
+    })
+  })
+
+  describe("adds JSON to IPFS", () => {
+    let cid = ref("");
+    beforeAllPromise(() => {
+      fission.add(Mocks.jsonContent)
+      |> Js.Promise.then_(value => {
+        cid := value;
+        Js.Promise.resolve(());
+      })
     })
 
-    testPromise("pins strings to IPFS", () => {
-      fission.pin(cid^)
+    test("returns valid CID", () => {
+      expect(cid^) |> toEqual(Mocks.testCID)
+    })
+  })
+
+  describe("pins content to IPFS", () => {
+    testPromise("sends request without failing", () => {
+      fission.pin(Mocks.strCID)
       |> Js.Promise.then_(_value => {
         expect(true)
         |> toEqual(true)
-        |> Js.Promise.resolve
-      })
-    })
-
-    describe("string retrieval", () => {
-      let ipfsContent = ref("");
-
-      beforeAllPromise(() => {
-        fission.content(cid^)
-        |> Js.Promise.then_(value => {
-          ipfsContent := value
-          Js.Promise.resolve()
-        })
-      })
-
-      test("is the same string as the original", () => {
-        expect(ipfsContent^) |> toEqual(str);
-      })
-    })
-
-    testPromise("removes strings from IPFS", () => {
-      fission.remove(cid^)
-      |> Js.Promise.then_(_value => {
-        fission.cids();
-      })
-      |> Js.Promise.then_(cids => {
-        Array.to_list(cids)
-        |> List.mem(cid^)
-        |> expect
-        |> toEqual(false)
         |> Js.Promise.resolve
       })
     })
   })
 
-  describe("adds JSON Objects to IPFS", () => {
-    let json = randomJSON();
-    // let json = {"test": 123498 7}
-    let cid = ref("");
-    let cidList = ref([""]);
-
-    beforeAllPromise(() => {
-      fission.add(json)
-      |> Js.Promise.then_(value => {
-        cid := value;
-        fission.cids()
-      })
-      |> Js.Promise.then_(cids => {
-        cidList := Array.to_list(cids)
-        Js.Promise.resolve();
-      })
-    })
-
-    test("uploads json to IPFS", () => {
-      let exists = List.mem(cid^, cidList^)
-      expect(exists) |> toEqual(true)
-    })
-
-    testPromise("pins json to IPFS", () => {
-      fission.pin(cid^)
+  describe("deletes content from IPFS", () => {
+    testPromise("sends request without failing", () => {
+      fission.pin(Mocks.strCID)
       |> Js.Promise.then_(_value => {
         expect(true)
         |> toEqual(true)
-        |> Js.Promise.resolve
-      })
-    })
-
-    describe("string retrieval", () => {
-      let ipfsContent = ref(Js.Dict.empty())
-
-      beforeAllPromise(() => {
-        fission.content(cid^)
-        |> Js.Promise.then_(value => {
-          ipfsContent := value
-          Js.Promise.resolve()
-        })
-      })
-
-      test("is the same string as the original", () => {
-        expect(ipfsContent^) |> toEqual(json)
-      })
-    })
-
-    testPromise("removes json from IPFS", () => {
-      fission.remove(cid^)
-      |> Js.Promise.then_(_value => {
-        fission.cids()
-      })
-      |> Js.Promise.then_(cids => {
-        Array.to_list(cids)
-        |> List.mem(cid^)
-        |> expect
-        |> toEqual(false)
-        |> Js.Promise.resolve
-      })
-    })
-  })
-
-  describe("adds files to IPFS", () => {
-    let filename = "test_img.png";
-    let filepath = dirname ++ "/" ++ filename;
-    let fileContent = Node.Fs.readFileAsUtf8Sync(filepath)
-    let cid = ref("");
-    let cidList = ref([""]);
-
-    beforeAllPromise(() => {
-      // Compiles fine, but throws runtime error `caml_ml_open_descriptor_in not polyfilled by BuckleScript yet`
-      // let fileStream = Pervasives.open_in_bin(filepath)
-      // -> Stream.of_channel
-      let fileStream = [%bs.raw {|
-        require('fs').createReadStream(filepath)
-      |}]
-      fission.addStream(fileStream)
-      |> Js.Promise.then_(value => {
-        cid := value;
-        fission.cids();
-      })
-      |> Js.Promise.then_(cids => {
-        cidList := Array.to_list(cids);
-        Js.Promise.resolve();
-      })
-    })
-
-    test("uploads files to IPFS", () => {
-      let exists = List.mem(cid^, cidList^);
-      expect(exists) |> toEqual(true);
-    })
-
-    testPromise("pins files to IPFS", () => {
-      fission.pin(cid^)
-      |> Js.Promise.then_(_value => {
-        expect(true)
-        |> toEqual(true)
-        |> Js.Promise.resolve
-      })
-    })
-
-    describe("file retrieval", () => {
-      let ipfsContent = ref("");
-
-      beforeAllPromise(() => {
-        fission.content(cid^)
-        |> Js.Promise.then_(value => {
-          ipfsContent := value
-          Js.Promise.resolve()
-        })
-      })
-
-      test("is the same file as the original", () => {
-        expect(ipfsContent^) |> toEqual(fileContent);
-      })
-    })
-
-    testPromise("removes files from IPFS", () => {
-      fission.remove(cid^)
-      |> Js.Promise.then_(_value => {
-        fission.cids();
-      })
-      |> Js.Promise.then_(cids => {
-        Array.to_list(cids)
-        |> List.mem(cid^)
-        |> expect
-        |> toEqual(false)
         |> Js.Promise.resolve
       })
     })
